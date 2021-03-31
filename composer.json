@@ -1,0 +1,19 @@
+{
+    "name": "technically/reflection-callable",
+    "description": "A utility library to simplify reflecting any callable value.",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Ivan Voskoboinyk",
+            "email": "ivan@voskoboinyk.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "config": {
+        "sort-packages": true
+    },
+    "require": {},
+    "require-dev": {},
+    "autoload": {}
+}
