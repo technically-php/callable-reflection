@@ -99,4 +99,14 @@ describe('ReflectionCallable', function () {
         assert($reflection->isInstanceMethod() === false);
         assert($reflection->isInvokableObject() === true);
     });
+
+    it('should by callable by itself', function () {
+        $reflection = new ReflectionCallable(function (string $name) {
+            return "Hello {$name}!";
+        });
+
+        is_callable($reflection);
+
+        assert($reflection('Captain') === 'Hello Captain!');
+    });
 });

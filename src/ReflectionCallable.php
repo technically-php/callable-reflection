@@ -72,6 +72,15 @@ final class ReflectionCallable
     /**
      * @param mixed ...$arguments
      * @return mixed
+     */
+    public function __invoke(...$arguments)
+    {
+        return ($this->callable)(...$arguments);
+    }
+
+    /**
+     * @param mixed ...$arguments
+     * @return mixed
      * @throws ArgumentCountError If too few or too many arguments passed to the callable.
      */
     public function apply(array $arguments = [])
