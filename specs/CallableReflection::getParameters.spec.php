@@ -2,6 +2,8 @@
 
 use Technically\CallableReflection\Parameters\TypeReflection;
 use Technically\CallableReflection\CallableReflection;
+use Technically\CallableReflection\Specs\Fixtures\MyParentDependencyCallable;
+use Technically\CallableReflection\Specs\Fixtures\MySelfDependencyCallable;
 
 describe('CallableReflection::getParameters()', function () {
     it('should reflect arguments of callable without arguments', function () {
@@ -107,4 +109,55 @@ describe('CallableReflection::getParameters()', function () {
             ]);
         });
     }
+
+    it('should parse self argument types', function () {
+        $callable = new MySelfDependencyCallable();
+
+        assert(is_callable($callable));
+
+        $reflection = new CallableReflection($callable);
+
+        assert(count($reflection->getParameters()) === 1);
+
+        [$self] = $reflection->getParameters();
+
+        assert($self->getName() === 'self');
+        assert($self->isNullable() === true);
+        assert($self->isOptional() === true);
+        assert($self->getDefaultValue() === null);
+        assert($self->hasTypeDeclarations() === true);
+        assert($self->getTypeDeclarations() == [
+            new TypeReflection('self', MySelfDependencyCallable::class),
+        ]);
+    });
+
+    it('should parse parent argument types', function () {
+        $callable = new MyParentDependencyCallable();
+
+        assert(is_callable($callable));
+
+        $reflection = new CallableReflection($callable);
+
+        assert(count($reflection->getParameters()) === 2);
+
+        [$self, $parent] = $reflection->getParameters();
+
+        assert($self->getName() === 'self');
+        assert($self->isNullable() === true);
+        assert($self->isOptional() === false);
+        assert($self->getDefaultValue() === null);
+        assert($self->hasTypeDeclarations() === true);
+        assert($self->getTypeDeclarations() == [
+            new TypeReflection('self', MyParentDependencyCallable::class),
+        ]);
+
+        assert($parent->getName() === 'parent');
+        assert($parent->isNullable() === true);
+        assert($parent->isOptional() === true);
+        assert($parent->getDefaultValue() === null);
+        assert($parent->hasTypeDeclarations() === true);
+        assert($parent->getTypeDeclarations() == [
+            new TypeReflection('parent', MyParentDependencyCallable::class),
+        ]);
+    });
 });

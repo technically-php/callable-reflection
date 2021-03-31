@@ -2,7 +2,7 @@
 
 namespace Technically\CallableReflection\Specs\Fixtures;
 
-final class MyInstanceMethodCallable
+class MyInstanceMethodCallable
 {
     public function hello(): string
     {
