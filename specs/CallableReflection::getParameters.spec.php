@@ -63,4 +63,48 @@ describe('CallableReflection::getParameters()', function () {
         assert($d->hasTypeDeclarations() === false);
         assert($d->getTypeDeclarations() === []);
     });
+
+    if (PHP_MAJOR_VERSION >= 8) {
+        it('should reflect arguments of callable with PHP8 union-type hints', function () {
+            $reflection = new CallableReflection(
+                function (int|false $a, string|int|null $b, Closure|callable|bool $c = null) {
+                    return null;
+                }
+            );
+
+            assert(count($reflection->getParameters()) === 3);
+
+            [$a, $b, $c] = $reflection->getParameters();
+
+            assert($a->getName() === 'a');
+            assert($a->isNullable() === false);
+            assert($a->isOptional() === false);
+            assert($a->hasTypeDeclarations() === true);
+            assert($a->getTypeDeclarations() == [
+                new TypeReflection('int'),
+                new TypeReflection('false'),
+            ]);
+
+            assert($b->getName() === 'b');
+            assert($b->isNullable() === true);
+            assert($b->isOptional() === false);
+            assert($b->hasTypeDeclarations() === true);
+            assert($b->getTypeDeclarations() == [
+                new TypeReflection('string'),
+                new TypeReflection('int'),
+                // Note: `null` is intentionally skipped, as it already contributed to `->isNullable() === true`
+            ]);
+
+            assert($c->getName() === 'c');
+            assert($c->isNullable() === true);
+            assert($c->isOptional() === true);
+            assert($c->getDefaultValue() === null);
+            assert($c->hasTypeDeclarations() === true);
+            assert($c->getTypeDeclarations() == [
+                new TypeReflection('Closure'),
+                new TypeReflection('callable'),
+                new TypeReflection('bool'),
+            ]);
+        });
+    }
 });
