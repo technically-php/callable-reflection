@@ -164,7 +164,7 @@ final class CallableReflection
             }
 
             throw new ArgumentCountError(
-                "Too few arguments: argument #{$i} ({$reflection->getName()}) is expected, but not passed."
+                "Too few arguments: argument #{$i} (`{$reflection->getName()}`) is expected, but not passed."
             );
         }
 
@@ -271,14 +271,14 @@ final class CallableReflection
         $keys = array_map(
             function ($key): string {
                 if (is_int($key)) {
-                    return "#{$key}";
+                    return sprintf("#%s", $key + 1);
                 }
-                return "`{$key}`";
+                return sprintf("`%s`", $key);
             },
             array_keys($arguments)
         );
         throw new ArgumentCountError(sprintf(
-            "Too many arguments: Unused extra arguments passed: %s. This may be a mistake in your code.",
+            "Too many arguments: unused extra arguments passed: %s. This may be a mistake in your code.",
             implode(', ', $keys)
         ));
     }
