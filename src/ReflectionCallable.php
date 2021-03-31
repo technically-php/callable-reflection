@@ -41,6 +41,15 @@ final class ReflectionCallable
         return $this->callable;
     }
 
+    /**
+     * @param mixed ...$arguments
+     * @return mixed
+     */
+    public function call(...$arguments)
+    {
+        return ($this->callable)(...$arguments);
+    }
+
     public function isFunction(): bool
     {
         return $this->reflector instanceof ReflectionFunction
