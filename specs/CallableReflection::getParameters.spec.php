@@ -1,11 +1,11 @@
 <?php
 
-use Technically\ReflectionCallable\Parameters\TypeReflection;
-use Technically\ReflectionCallable\ReflectionCallable;
+use Technically\CallableReflection\Parameters\TypeReflection;
+use Technically\CallableReflection\CallableReflection;
 
-describe('ReflectionCallable::getParameters()', function () {
+describe('CallableReflection::getParameters()', function () {
     it('should reflect arguments of callable without arguments', function () {
-        $reflection = new ReflectionCallable(function () {
+        $reflection = new CallableReflection(function () {
             return 'hello';
         });
 
@@ -13,7 +13,7 @@ describe('ReflectionCallable::getParameters()', function () {
     });
 
     it('should reflect arguments of callable with type hints', function () {
-        $reflection = new ReflectionCallable(function (?int $i, string $a, string $b = 'B', string $c = null, $d = 1) {
+        $reflection = new CallableReflection(function (?int $i, string $a, string $b = 'B', string $c = null, $d = 1) {
             return null;
         });
 

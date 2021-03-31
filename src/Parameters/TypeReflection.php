@@ -1,6 +1,6 @@
 <?php
 
-namespace Technically\ReflectionCallable\Parameters;
+namespace Technically\CallableReflection\Parameters;
 
 use InvalidArgumentException;
 use LogicException;

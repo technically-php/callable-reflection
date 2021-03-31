@@ -1,5 +1,5 @@
 {
-    "name": "technically/reflection-callable",
+    "name": "technically/callable-reflection",
     "description": "A utility library to simplify reflecting any callable value.",
     "type": "library",
     "license": "MIT",
@@ -21,12 +21,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Technically\\ReflectionCallable\\": "src/"
+            "Technically\\CallableReflection\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Technically\\ReflectionCallable\\Specs\\": "specs/"
+            "Technically\\CallableReflection\\Specs\\": "specs/"
         }
     }
 }

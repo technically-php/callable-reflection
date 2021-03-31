@@ -1,6 +1,6 @@
 <?php
 
-namespace Technically\ReflectionCallable;
+namespace Technically\CallableReflection;
 
 use ArgumentCountError;
 use Closure;
@@ -12,10 +12,10 @@ use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionParameter;
 use RuntimeException;
-use Technically\ReflectionCallable\Parameters\ParameterReflection;
-use Technically\ReflectionCallable\Parameters\TypeReflection;
+use Technically\CallableReflection\Parameters\ParameterReflection;
+use Technically\CallableReflection\Parameters\TypeReflection;
 
-final class ReflectionCallable
+final class CallableReflection
 {
     /**
      * @var ReflectionFunction|ReflectionMethod

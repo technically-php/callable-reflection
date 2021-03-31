@@ -1,10 +1,10 @@
 <?php
 
-use Technically\ReflectionCallable\ReflectionCallable;
+use Technically\CallableReflection\CallableReflection;
 
-describe('ReflectionCallable::apply()', function () {
+describe('CallableReflection::apply()', function () {
     it('should call reflected callable without arguments', function () {
-        $reflection = new ReflectionCallable(function () {
+        $reflection = new CallableReflection(function () {
             return 'hello';
         });
 
@@ -12,7 +12,7 @@ describe('ReflectionCallable::apply()', function () {
     });
 
     it('it should reflected callable with numeric arguments array', function () {
-        $reflection = new ReflectionCallable(function (string $name, string $greeting = 'Hello') {
+        $reflection = new CallableReflection(function (string $name, string $greeting = 'Hello') {
             return "{$greeting}, {$name}!";
         });
 
@@ -21,7 +21,7 @@ describe('ReflectionCallable::apply()', function () {
     });
 
     it('it should reflected callable with named arguments array', function () {
-        $reflection = new ReflectionCallable(function (string $name, string $greeting = 'Hello') {
+        $reflection = new CallableReflection(function (string $name, string $greeting = 'Hello') {
             return "{$greeting}, {$name}!";
         });
 
@@ -30,7 +30,7 @@ describe('ReflectionCallable::apply()', function () {
     });
 
     it('it should reflected callable with mixed arguments array', function () {
-        $reflection = new ReflectionCallable(function (string $name, string $greeting = 'Hello') {
+        $reflection = new CallableReflection(function (string $name, string $greeting = 'Hello') {
             return "{$greeting}, {$name}!";
         });
 

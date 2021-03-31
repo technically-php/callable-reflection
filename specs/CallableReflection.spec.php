@@ -1,18 +1,18 @@
 <?php
 
-use Technically\ReflectionCallable\ReflectionCallable;
-use Technically\ReflectionCallable\Specs\Fixtures\MyInstanceMethodCallable;
-use Technically\ReflectionCallable\Specs\Fixtures\MyInvokableObjectCallable;
-use Technically\ReflectionCallable\Specs\Fixtures\MyStaticMethodCallable;
+use Technically\CallableReflection\CallableReflection;
+use Technically\CallableReflection\Specs\Fixtures\MyInstanceMethodCallable;
+use Technically\CallableReflection\Specs\Fixtures\MyInvokableObjectCallable;
+use Technically\CallableReflection\Specs\Fixtures\MyStaticMethodCallable;
 
-describe('ReflectionCallable', function () {
+describe('CallableReflection', function () {
     it('should reflect global functions by name', function () {
         require __DIR__ . '/Fixtures/my_global_function.php';
 
         $callable = 'my_global_function';
         assert(is_callable($callable));
 
-        $reflection = new ReflectionCallable($callable);
+        $reflection = new CallableReflection($callable);
 
         assert($reflection->getCallable() === $callable);
         assert($reflection->isFunction() === true);
@@ -29,7 +29,7 @@ describe('ReflectionCallable', function () {
         };
         assert(is_callable($callable));
 
-        $reflection = new ReflectionCallable($callable);
+        $reflection = new CallableReflection($callable);
 
         assert($reflection->getCallable() === $callable);
         assert($reflection->isFunction() === false);
@@ -44,7 +44,7 @@ describe('ReflectionCallable', function () {
         $callable = [MyStaticMethodCallable::class, 'hello'];
         assert(is_callable($callable));
 
-        $reflection = new ReflectionCallable($callable);
+        $reflection = new CallableReflection($callable);
 
         assert($reflection->getCallable() === $callable);
         assert($reflection->isFunction() === false);
@@ -59,7 +59,7 @@ describe('ReflectionCallable', function () {
         $callable = MyStaticMethodCallable::class .'::hello';
         assert(is_callable($callable));
 
-        $reflection = new ReflectionCallable($callable);
+        $reflection = new CallableReflection($callable);
 
         assert($reflection->getCallable() === $callable);
         assert($reflection->isFunction() === false);
@@ -74,7 +74,7 @@ describe('ReflectionCallable', function () {
         $callable = [new MyInstanceMethodCallable(), 'Hello'];
         assert(is_callable($callable));
 
-        $reflection = new ReflectionCallable($callable);
+        $reflection = new CallableReflection($callable);
 
         assert($reflection->getCallable() === $callable);
         assert($reflection->isFunction() === false);
@@ -89,7 +89,7 @@ describe('ReflectionCallable', function () {
         $callable = new MyInvokableObjectCallable();
         assert(is_callable($callable));
 
-        $reflection = new ReflectionCallable($callable);
+        $reflection = new CallableReflection($callable);
 
         assert($reflection->getCallable() === $callable);
         assert($reflection->isFunction() === false);
@@ -101,7 +101,7 @@ describe('ReflectionCallable', function () {
     });
 
     it('should by callable by itself', function () {
-        $reflection = new ReflectionCallable(function (string $name) {
+        $reflection = new CallableReflection(function (string $name) {
             return "Hello {$name}!";
         });
 

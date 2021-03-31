@@ -1,6 +1,6 @@
 <?php
 
-namespace Technically\ReflectionCallable\Specs\Fixtures;
+namespace Technically\CallableReflection\Specs\Fixtures;
 
 final class MyInstanceMethodCallable
 {
