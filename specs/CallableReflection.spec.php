@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Technically\CallableReflection\CallableReflection;
 use Technically\CallableReflection\Specs\Fixtures\MyInstanceMethodCallable;
 use Technically\CallableReflection\Specs\Fixtures\MyInvokableObjectCallable;

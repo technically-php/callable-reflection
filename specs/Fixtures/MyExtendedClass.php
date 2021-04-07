@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Technically\CallableReflection\Specs\Fixtures;
 
-class MyExtendedClass extends MyClass
+final class MyExtendedClass extends MyClass
 {
 
 }

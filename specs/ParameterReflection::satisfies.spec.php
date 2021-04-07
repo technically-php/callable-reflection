@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Technically\CallableReflection\Parameters\ParameterReflection;
 use Technically\CallableReflection\Parameters\TypeReflection;
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Technically\CallableReflection\Parameters\TypeReflection;
 use Technically\CallableReflection\Specs\Fixtures\MyClass;
 use Technically\CallableReflection\Specs\Fixtures\MyExtendedClass;
