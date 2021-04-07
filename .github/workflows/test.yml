@@ -21,4 +21,4 @@ jobs:
         run: composer install
 
       - name: Test
-        run: make tests
+        run: composer run test
