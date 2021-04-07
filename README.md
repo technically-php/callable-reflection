@@ -78,7 +78,7 @@ $reflection = CallableReflection::fromConstructor(MyService::class);
 var_dump($reflection->isConstructor()); // true
 var_dump($reflection->isFunction()); // false
 var_dump($reflection->isMethod()); // false
-var_dump($reflection->isClosure()); // true
+var_dump($reflection->isClosure()); // false
 
 [$p1, $p2] = $reflection->getParameters();
 
