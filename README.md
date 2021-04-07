@@ -9,6 +9,7 @@ seamlessly supporting PHP8 union types as well.
 ## Features
 
 - Unified and simplified interface to reflect callable parameters 
+- No dependencies
 - PHP 8.0 ready (supports union type hints; see examples below)
 - PHP 7.1+ compatible
 - Semver
