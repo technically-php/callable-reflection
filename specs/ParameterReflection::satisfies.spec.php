@@ -10,7 +10,7 @@ describe('ParameterReflection::satisfies()', function () {
         $parameter = new ParameterReflection('whatever', [
             new TypeReflection('int'),
             new TypeReflection('string'),
-            new TypeReflection('object'),
+            new TypeReflection('array'),
         ]);
 
         assert($parameter->satisfies(true) === false);
@@ -18,11 +18,11 @@ describe('ParameterReflection::satisfies()', function () {
         assert($parameter->satisfies(null) === false);
         assert($parameter->satisfies('') === true);
         assert($parameter->satisfies('is_object') === true);
-        assert($parameter->satisfies([]) === false);
+        assert($parameter->satisfies([]) === true);
         assert($parameter->satisfies(1) === true);
         assert($parameter->satisfies(1.0) === false);
         assert($parameter->satisfies(2.5) === false);
-        assert($parameter->satisfies((object) []) === true);
+        assert($parameter->satisfies((object) []) === false);
     });
 
     it('should return true for null if parameter is nullable', function () {

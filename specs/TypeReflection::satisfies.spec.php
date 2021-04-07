@@ -135,22 +135,24 @@ describe('TypeReflection::satisfies()', function () {
         assert($type->satisfies((object) []) === false);
     });
 
-    it('should check if a value satisfies `object` type declaration', function () use ($closure, $iterator) {
-        $type = new TypeReflection('object');
+    if (PHP_VERSION_ID >= 70200) {
+        it('should check if a value satisfies `object` type declaration', function () use ($closure, $iterator) {
+            $type = new TypeReflection('object');
 
-        assert($type->satisfies(true) === false);
-        assert($type->satisfies(false) === false);
-        assert($type->satisfies(null) === false);
-        assert($type->satisfies('') === false);
-        assert($type->satisfies('is_object') === false);
-        assert($type->satisfies([]) === false);
-        assert($type->satisfies($closure) === true);
-        assert($type->satisfies($iterator) === true);
-        assert($type->satisfies(1) === false);
-        assert($type->satisfies(1.0) === false);
-        assert($type->satisfies(2.5) === false);
-        assert($type->satisfies((object) []) === true);
-    });
+            assert($type->satisfies(true) === false);
+            assert($type->satisfies(false) === false);
+            assert($type->satisfies(null) === false);
+            assert($type->satisfies('') === false);
+            assert($type->satisfies('is_object') === false);
+            assert($type->satisfies([]) === false);
+            assert($type->satisfies($closure) === true);
+            assert($type->satisfies($iterator) === true);
+            assert($type->satisfies(1) === false);
+            assert($type->satisfies(1.0) === false);
+            assert($type->satisfies(2.5) === false);
+            assert($type->satisfies((object) []) === true);
+        });
+    }
 
     it('should check if a value satisfies `iterable` type declaration', function () use ($closure, $iterator) {
         $type = new TypeReflection('iterable');
