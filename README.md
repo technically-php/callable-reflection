@@ -41,7 +41,7 @@ var_dump($reflection->isClosure()); // true
 
 [$p1, $p2] = $reflection->getParameters();
 
-var_dump($p2->getName()); // factory
+var_dump($p2->getName()); // "factory"
 var_dump($p2->isNullable()); // true
 var_dump($p2->isOptional()); // false
 var_dump($p2->hasTypes()); // true
@@ -165,7 +165,7 @@ All notable changes to this project will be documented in the [CHANGELOG](./CHAN
 
 ## Credits
 
-Implemented by [Ivan Voskoboinyk][3]
+Implemented by :space_invader: [Ivan Voskoboinyk][3].
 
 [1]: https://www.php-fig.org/psr/psr-11/
 [2]: https://getcomposer.org/
