@@ -33,7 +33,7 @@ $function = function (string $abstract, Closure|string|null $concrete): mixed {
     // function body
 };
 
-$reflection = new CallableReflection($function);
+$reflection = CallableReflection::fromCallable($function);
 
 var_dump($reflection->isFunction()); // false
 var_dump($reflection->isMethod()); // false
@@ -62,6 +62,37 @@ var_dump($t2->isClassName()); // false
 var_dump($t2->getType()); // "null" 
 ```
 
+### Reflecting arbitrary class constructor
+
+```php
+<?php
+final class MyService {
+    public function __construct(LoggerInterface $logger, bool $debug = false)
+    {
+        // ...
+    }
+}
+
+$reflection = CallableReflection::fromConstructor(MyService::class);
+
+var_dump($reflection->isConstructor()); // true
+var_dump($reflection->isFunction()); // false
+var_dump($reflection->isMethod()); // false
+var_dump($reflection->isClosure()); // true
+
+[$p1, $p2] = $reflection->getParameters();
+
+var_dump($p1->getName()); // "logger"
+var_dump($p1->isNullable()); // false
+var_dump($p1->isOptional()); // false
+var_dump($p1->hasTypes()); // true
+
+var_dump($p2->getName()); // "debug"
+var_dump($p2->isNullable()); // false
+var_dump($p2->isOptional()); // true
+var_dump($p2->hasTypes()); // true
+```
+
 ### Checking if value satisfies parameter type declaration
 
 ```php
@@ -69,7 +100,7 @@ $function = function (int|string $value = null): mixed {
     // function body
 };
 
-$reflection = new CallableReflection($function);
+$reflection = CallableReflection::fromCallable($function);
 
 [$param] = $reflection->getParameters();
 
@@ -88,7 +119,7 @@ $function = function (string $abstract, Closure|string|null $concrete): mixed {
 // function body
 };
 
-$reflection = new CallableReflection($function);
+$reflection = CallableReflection::fromCallable($function);
 
 // 1) call with positional parameters
 $result = $reflection->call(LoggerInterface::class, MyLogger::class);
@@ -107,6 +138,24 @@ $result = $reflection->apply([LoggerInterface::class, 'concrete' => MyLogger::cl
 
 // 5) CallableReflection is a callable by itself
 $result = $reflection(LoggerInterface::class, MyLogger::class);
+```
+
+### Invoking constructor via reflection
+
+```php
+final class MyService {
+    public function __construct(LoggerInterface $logger, bool $debug = false)
+    {
+        // ...
+    }
+}
+
+$reflection = CallableReflection::fromConstructor(MyService::class);
+
+$service = $reflection->call(new NullLogger());
+// or alternatively:
+// $service = $reflection->apply(['logger' => new NullLogger()]);
+assert($service instanceof MyService);
 ```
 
 ## Changelog
