@@ -6,7 +6,7 @@ use Technically\CallableReflection\CallableReflection;
 
 describe('CallableReflection::call()', function () {
     it('should call reflected callable without arguments', function () {
-        $reflection = new CallableReflection(function () {
+        $reflection = CallableReflection::fromCallable(function () {
             return 'hello';
         });
 
@@ -14,7 +14,7 @@ describe('CallableReflection::call()', function () {
     });
 
     it('it should reflected callable with arguments', function () {
-        $reflection = new CallableReflection(function (string $name, string $greeting = 'Hello') {
+        $reflection = CallableReflection::fromCallable(function (string $name, string $greeting = 'Hello') {
             return "{$greeting}, {$name}!";
         });
 

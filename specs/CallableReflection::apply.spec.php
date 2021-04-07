@@ -6,7 +6,7 @@ use Technically\CallableReflection\CallableReflection;
 
 describe('CallableReflection::apply()', function () {
     it('should call reflected callable without arguments', function () {
-        $reflection = new CallableReflection(function () {
+        $reflection = CallableReflection::fromCallable(function () {
             return 'hello';
         });
 
@@ -14,7 +14,7 @@ describe('CallableReflection::apply()', function () {
     });
 
     it('it should reflected callable with numeric arguments array', function () {
-        $reflection = new CallableReflection(function (string $name, string $greeting = 'Hello') {
+        $reflection = CallableReflection::fromCallable(function (string $name, string $greeting = 'Hello') {
             return "{$greeting}, {$name}!";
         });
 
@@ -23,7 +23,7 @@ describe('CallableReflection::apply()', function () {
     });
 
     it('it should reflected callable with named arguments array', function () {
-        $reflection = new CallableReflection(function (string $name, string $greeting = 'Hello') {
+        $reflection = CallableReflection::fromCallable(function (string $name, string $greeting = 'Hello') {
             return "{$greeting}, {$name}!";
         });
 
@@ -32,7 +32,7 @@ describe('CallableReflection::apply()', function () {
     });
 
     it('it should reflected callable with mixed arguments array', function () {
-        $reflection = new CallableReflection(function (string $name, string $greeting = 'Hello') {
+        $reflection = CallableReflection::fromCallable(function (string $name, string $greeting = 'Hello') {
             return "{$greeting}, {$name}!";
         });
 
@@ -41,7 +41,7 @@ describe('CallableReflection::apply()', function () {
     });
 
     it('it should throw ArgumentsCountError when too few arguments passed', function () {
-        $reflection = new CallableReflection(function (string $name, string $greeting = 'Hello') {
+        $reflection = CallableReflection::fromCallable(function (string $name, string $greeting = 'Hello') {
             return "{$greeting}, {$name}!";
         });
 
@@ -57,7 +57,7 @@ describe('CallableReflection::apply()', function () {
     });
 
     it('it should throw ArgumentsCountError when unnecessary extra arguments passed', function () {
-        $reflection = new CallableReflection(function (string $name, string $greeting = 'Hello') {
+        $reflection = CallableReflection::fromCallable(function (string $name, string $greeting = 'Hello') {
             return "{$greeting}, {$name}!";
         });
 
@@ -74,7 +74,7 @@ describe('CallableReflection::apply()', function () {
     });
 
     it('it should throw ArgumentsCountError when unnecessary extra named arguments passed', function () {
-        $reflection = new CallableReflection(function (string $name, string $greeting = 'Hello') {
+        $reflection = CallableReflection::fromCallable(function (string $name, string $greeting = 'Hello') {
             return "{$greeting}, {$name}!";
         });
 

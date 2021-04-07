@@ -19,10 +19,21 @@ use Technically\CallableReflection\Parameters\TypeReflection;
 
 final class CallableReflection
 {
+    private const TYPE_FUNCTION = 1;
+    private const TYPE_CLOSURE = 2;
+    private const TYPE_INSTANCE_METHOD = 3;
+    private const TYPE_STATIC_METHOD = 4;
+    private const TYPE_INVOKABLE_OBJECT = 5;
+
     /**
      * @var ReflectionFunction|ReflectionMethod
      */
     private $reflector;
+
+    /**
+     * @var int
+     */
+    private $type;
 
     /**
      * @var callable
@@ -34,19 +45,49 @@ final class CallableReflection
      */
     private $parameters;
 
-    public function __construct(callable $callable)
+    private function __construct(callable $callable, ReflectionFunctionAbstract $reflector, int $type)
     {
-        $this->reflector = self::reflect($callable);
+        $this->reflector = $reflector;
         $this->callable = $callable;
         $this->parameters = self::reflectParameters($this->reflector);
+        $this->type = $type;
     }
 
-    /**
-     * @return ReflectionMethod|ReflectionFunction
-     */
-    public function getReflector(): ReflectionFunctionAbstract
+    public static function fromCallable(callable $callable): self
     {
-        return $this->reflector;
+        try {
+            if ($callable instanceof Closure) {
+                return new self($callable, new ReflectionFunction($callable), self::TYPE_CLOSURE);
+            }
+
+            if (is_string($callable) && function_exists($callable)) {
+                return new self($callable, new ReflectionFunction($callable), self::TYPE_FUNCTION);
+            }
+
+            if (is_string($callable) && str_contains($callable, '::')) {
+                return new self($callable, new ReflectionMethod($callable), self::TYPE_STATIC_METHOD);
+            }
+
+            if (is_object($callable) && method_exists($callable, '__invoke')) {
+                return new self($callable, new ReflectionMethod($callable, '__invoke'), self::TYPE_INVOKABLE_OBJECT);
+            }
+
+            if (is_array($callable)) {
+                $reflector = new ReflectionMethod($callable[0], $callable[1]);
+
+                if ($reflector->isStatic()) {
+                    return new self($callable, $reflector, self::TYPE_STATIC_METHOD);
+                }
+
+                return new self($callable, $reflector, self::TYPE_INSTANCE_METHOD);
+            }
+        } catch (ReflectionException $exception) {
+            $type = is_object($callable) ? get_class($callable) : gettype($callable);
+            throw new RuntimeException("Failed reflecting the given callable: `{$type}`.", 0, $exception);
+        }
+
+        $type = is_object($callable) ? get_class($callable) : gettype($callable);
+        throw new InvalidArgumentException("Cannot reflect the given callable: `{$type}`.");
     }
 
     public function getCallable(): callable
@@ -98,42 +139,33 @@ final class CallableReflection
 
     public function isFunction(): bool
     {
-        return $this->reflector instanceof ReflectionFunction
-            && is_string($this->callable)
-            && function_exists($this->callable);
+        return $this->type === self::TYPE_FUNCTION;
     }
 
     public function isClosure(): bool
     {
-        return $this->callable instanceof Closure;
+        return $this->type === self::TYPE_CLOSURE;
     }
 
     public function isMethod(): bool
     {
-        return ! is_object($this->callable)
-            && $this->reflector instanceof ReflectionMethod;
+        return $this->type === self::TYPE_INSTANCE_METHOD
+            || $this->type === self::TYPE_STATIC_METHOD;
     }
 
     public function isStaticMethod(): bool
     {
-        return $this->reflector instanceof ReflectionMethod
-            && $this->reflector->isStatic();
+        return $this->type === self::TYPE_STATIC_METHOD;
     }
 
     public function isInstanceMethod(): bool
     {
-        return $this->reflector instanceof ReflectionMethod
-            && is_array($this->callable)
-            && is_object($this->callable[0]);
+        return $this->type === self::TYPE_INSTANCE_METHOD;
     }
 
     public function isInvokableObject(): bool
     {
-        if ($this->isClosure()) {
-            return false;
-        }
-
-        return is_object($this->callable);
+        return $this->type === self::TYPE_INVOKABLE_OBJECT;
     }
 
     /**
@@ -142,7 +174,7 @@ final class CallableReflection
      * @return array
      * @throws ArgumentCountError
      */
-    private function resolveArguments(array $reflections, array & $arguments): array
+    private function resolveArguments(array $reflections, array &$arguments): array
     {
         $values = [];
         foreach ($reflections as $i => $reflection) {
@@ -171,41 +203,6 @@ final class CallableReflection
         }
 
         return $values;
-    }
-
-    /**
-     * @param callable $callable
-     * @return ReflectionFunction|ReflectionMethod
-     */
-    private static function reflect(callable $callable): ReflectionFunctionAbstract
-    {
-        try {
-            if ($callable instanceof Closure) {
-                return new ReflectionFunction($callable);
-            }
-
-            if (is_string($callable) && function_exists($callable)) {
-                return new ReflectionFunction($callable);
-            }
-
-            if (is_string($callable) && str_contains($callable, '::')) {
-                return new ReflectionMethod($callable);
-            }
-
-            if (is_object($callable) && method_exists($callable, '__invoke')) {
-                return new ReflectionMethod($callable, '__invoke');
-            }
-
-            if (is_array($callable)) {
-                return new ReflectionMethod($callable[0], $callable[1]);
-            }
-        } catch (ReflectionException $exception) {
-            $type = is_object($callable) ? get_class($callable) : gettype($callable);
-            throw new RuntimeException("Failed reflecting the given callable: `{$type}`.", 0, $exception);
-        }
-
-        $type = is_object($callable) ? get_class($callable) : gettype($callable);
-        throw new InvalidArgumentException("Cannot reflect the given callable: `{$type}`.");
     }
 
     private static function reflectParameters(ReflectionFunctionAbstract $reflector): array
@@ -256,6 +253,10 @@ final class CallableReflection
         return [];
     }
 
+    /**
+     * @param array $arguments
+     * @throws ArgumentCountError When arguments array is not empty (i.e. there are unused arguments).
+     */
     private function assertUnusedArguments(array $arguments): void
     {
         if (count($arguments) === 0) {
@@ -267,6 +268,7 @@ final class CallableReflection
                 if (is_int($key)) {
                     return sprintf("#%s", $key + 1);
                 }
+
                 return sprintf("`%s`", $key);
             },
             array_keys($arguments)
