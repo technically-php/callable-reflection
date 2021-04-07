@@ -1,6 +1,6 @@
 {
     "name": "technically/callable-reflection",
-    "description": "A utility library to simplify reflecting any callable value.",
+    "description": "A handy library to simplify reflecting any callable or constructor. PHP8-ready!",
     "type": "library",
     "license": "MIT",
     "authors": [
