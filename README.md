@@ -35,7 +35,7 @@ $function = function (string $abstract, Closure|string|null $concrete): mixed {
 $reflection = new CallableReflection($function);
 
 var_dump($reflection->isFunction()); // false
-var_dump($reflection->isFunction()); // false
+var_dump($reflection->isMethod()); // false
 var_dump($reflection->isClosure()); // true
 
 [$p1, $p2] = $reflection->getParameters();
