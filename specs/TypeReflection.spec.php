@@ -82,4 +82,18 @@ describe('TypeReflection', function () {
         assert($type->isClassRequirement() === true);
         assert($type->getClassRequirement() === DateTimeInterface::class);
     });
+
+    it('should throw LogicException if class requirement is requested for non-class type hint', function () {
+        $type = new TypeReflection('string');
+
+        try {
+            $type->getClassRequirement();
+        } catch (Throwable $exception) {
+            // passthru
+        }
+
+        assert(isset($exception));
+        assert($exception instanceof LogicException);
+        assert($exception->getMessage() === 'Cannot get class name for a non-class requirement.');
+    });
 });

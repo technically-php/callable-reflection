@@ -169,7 +169,7 @@ final class TypeReflection
             return $this->type;
         }
 
-        return new LogicException('Cannot get class name for a non-class requirement.');
+        throw new LogicException('Cannot get class name for a non-class requirement.');
     }
 
     /**
