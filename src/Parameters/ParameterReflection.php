@@ -99,4 +99,25 @@ final class ParameterReflection
     {
         return $this->default;
     }
+
+    /**
+     * Check if the given value satisfies the parameter type declarations.
+     *
+     * @param mixed $value
+     * @return bool
+     */
+    public function satisfies($value): bool
+    {
+        if (is_null($value) && $this->isNullable()) {
+            return true;
+        }
+
+        foreach ($this->types as $type) {
+            if ($type->satisfies($value)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
