@@ -14,8 +14,7 @@
         "sort-packages": true
     },
     "require": {
-        "php": "^7.1|^8.0",
-        "symfony/polyfill-php80": "^1.0"
+        "php": "^7.1|^8.0"
     },
     "require-dev": {
         "peridot-php/peridot": "^1.19"
