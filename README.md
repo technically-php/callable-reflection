@@ -45,7 +45,7 @@ var_dump($p2->isNullable()); // true
 var_dump($p2->isOptional()); // false
 var_dump($p2->hasTypes()); // true
 
-[$t1, $t2] = $p2->getTypes();
+[$t1, $t2, $t3] = $p2->getTypes();
 
 var_dump($t1->isScalar()); // false 
 var_dump($t1->isClassName()); // true 
@@ -53,7 +53,12 @@ var_dump($t1->getType()); // "Closure"
 
 var_dump($t2->isScalar()); // true 
 var_dump($t2->isClassName()); // false 
-var_dump($t2->getType()); // "string" 
+var_dump($t2->getType()); // "string"
+
+var_dump($t2->isNull()); // true
+var_dump($t2->isScalar()); // false 
+var_dump($t2->isClassName()); // false 
+var_dump($t2->getType()); // "null" 
 ```
 
 ### Checking if value satisfies parameter type declaration
