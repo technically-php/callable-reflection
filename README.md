@@ -90,16 +90,19 @@ $function = function (string $abstract, Closure|string|null $concrete): mixed {
 
 $reflection = new CallableReflection($function);
 
-// 1) call by passing positional parameters
+// 1) call with positional parameters
 $result = $reflection->call(LoggerInterface::class, MyLogger::class);
 
-// 2) call by passing positional parameters array 
+// 1) call with named parameters
+$result = $reflection->call(concrete: MyLogger::class, abstract: LoggerInterface::class);
+
+// 2) call with positional parameters array 
 $result = $reflection->apply([LoggerInterface::class, MyLogger::class]);
 
-// 3) call by passing named parameters array 
+// 3) call with named parameters array 
 $result = $reflection->apply(['concrete' => MyLogger::class, 'abstract' => LoggerInterface::class]);
 
-// 4) call by passing mixed named and positional parameters array 
+// 4) call with mixed named and positional parameters array 
 $result = $reflection->apply([LoggerInterface::class, 'concrete' => MyLogger::class]);
 
 // 5) CallableReflection is a callable by itself
