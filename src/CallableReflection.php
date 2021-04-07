@@ -246,7 +246,7 @@ final class CallableReflection
         }
 
         /** @noinspection PhpElementIsNotAvailableInCurrentPhpVersionInspection */
-        if (PHP_VERSION_ID >= 8000 && $type instanceof \ReflectionUnionType) {
+        if (PHP_VERSION_ID >= 80000 && $type instanceof \ReflectionUnionType) {
             return array_values(array_filter(array_map(
                 function (ReflectionNamedType $type) use ($className) {
                     if ($type->getName() === 'null') {
