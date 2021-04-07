@@ -163,4 +163,36 @@ final class TypeReflection
 
         return new LogicException('Cannot get class name for a non-class requirement.');
     }
+
+    /**
+     * Check if the given value satisfies the type.
+     *
+     * @param mixed $value
+     * @return bool
+     */
+    public function satisfies($value): bool
+    {
+        if ($this->isMixed()) {
+            return true;
+        }
+
+        if ($this->isClassRequirement()) {
+            return is_object($value) && is_a($value, $this->getClassRequirement());
+        }
+
+        if ($this->isScalar()) {
+            return is_scalar($value) && (
+                is_bool($value) && $this->type === 'bool'
+                || is_string($value) && $this->type === 'string'
+                || is_int($value) && $this->type === 'int'
+                || (is_int($value) || is_float($value)) && $this->type === 'float'
+                || PHP_VERSION_ID >= 80000 && $value === false && $this->type === 'false'
+            );
+        }
+
+        return $this->isArray() && is_array($value)
+            || $this->isCallable() && is_callable($value)
+            || $this->isIterable() && is_iterable($value)
+            || $this->isObject() && is_object($value);
+    }
 }
