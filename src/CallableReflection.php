@@ -7,6 +7,8 @@ namespace Technically\CallableReflection;
 use ArgumentCountError;
 use Closure;
 use InvalidArgumentException;
+use LogicException;
+use ReflectionClass;
 use ReflectionException;
 use ReflectionFunction;
 use ReflectionFunctionAbstract;
@@ -24,6 +26,7 @@ final class CallableReflection
     private const TYPE_INSTANCE_METHOD = 3;
     private const TYPE_STATIC_METHOD = 4;
     private const TYPE_INVOKABLE_OBJECT = 5;
+    private const TYPE_CONSTRUCTOR = 6;
 
     /**
      * @var ReflectionFunction|ReflectionMethod
@@ -90,6 +93,49 @@ final class CallableReflection
         throw new InvalidArgumentException("Cannot reflect the given callable: `{$type}`.");
     }
 
+    /**
+     * @param string $className
+     * @return static
+     * @throws InvalidArgumentException If the given class does not exist.
+     *                                  Or if the class cannot be instantiated.
+     */
+    public static function fromConstructor(string $className): self
+    {
+        if (! class_exists($className)) {
+            throw new InvalidArgumentException("Class `{$className}` does not exist.");
+        }
+
+        try {
+            $class = new ReflectionClass($className);
+        } catch (ReflectionException $exception) {
+            throw new InvalidArgumentException("Class `{$className}` does not exist.", 0, $exception);
+        }
+
+        if (! $class->isInstantiable()) {
+            throw new InvalidArgumentException("Class `{$className}` cannot be instantiated.");
+        }
+
+        if ($reflector = $class->getConstructor()) {
+            $constructor = function (...$args) use ($class) {
+                return $class->newInstance(...$args);
+            };
+
+            return new self($constructor, $reflector, self::TYPE_CONSTRUCTOR);
+        }
+
+        $constructor = function () use ($class) {
+            return $class->newInstance();
+        };
+
+        try {
+            $reflector = new ReflectionFunction($constructor);
+        } catch (ReflectionException $exception) {
+            throw new LogicException('Failed to reflect constructor closure. This should never happen.', 0, $exception);
+        }
+
+        return new self($constructor, $reflector, self::TYPE_CONSTRUCTOR);
+    }
+
     public function getCallable(): callable
     {
         return $this->callable;
@@ -140,6 +186,11 @@ final class CallableReflection
     public function isFunction(): bool
     {
         return $this->type === self::TYPE_FUNCTION;
+    }
+
+    public function isConstructor(): bool
+    {
+        return $this->type === self::TYPE_CONSTRUCTOR;
     }
 
     public function isClosure(): bool

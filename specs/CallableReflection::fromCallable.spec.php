@@ -23,6 +23,7 @@ describe('CallableReflection::fromCallable', function () {
         assert($reflection->isStaticMethod() === false);
         assert($reflection->isInstanceMethod() === false);
         assert($reflection->isInvokableObject() === false);
+        assert($reflection->isConstructor() === false);
     });
 
     it('should reflect Closures', function () {
@@ -40,6 +41,7 @@ describe('CallableReflection::fromCallable', function () {
         assert($reflection->isStaticMethod() === false);
         assert($reflection->isInstanceMethod() === false);
         assert($reflection->isInvokableObject() === false);
+        assert($reflection->isConstructor() === false);
     });
 
     it('should reflect static method array', function () {
@@ -55,6 +57,7 @@ describe('CallableReflection::fromCallable', function () {
         assert($reflection->isStaticMethod() === true);
         assert($reflection->isInstanceMethod() === false);
         assert($reflection->isInvokableObject() === false);
+        assert($reflection->isConstructor() === false);
     });
 
     it('should reflect static method string', function () {
@@ -70,6 +73,7 @@ describe('CallableReflection::fromCallable', function () {
         assert($reflection->isStaticMethod() === true);
         assert($reflection->isInstanceMethod() === false);
         assert($reflection->isInvokableObject() === false);
+        assert($reflection->isConstructor() === false);
     });
 
     it('should reflect instance methods array', function () {
@@ -85,6 +89,7 @@ describe('CallableReflection::fromCallable', function () {
         assert($reflection->isStaticMethod() === false);
         assert($reflection->isInstanceMethod() === true);
         assert($reflection->isInvokableObject() === false);
+        assert($reflection->isConstructor() === false);
     });
 
     it('should reflect invokable objects', function () {
@@ -100,6 +105,7 @@ describe('CallableReflection::fromCallable', function () {
         assert($reflection->isStaticMethod() === false);
         assert($reflection->isInstanceMethod() === false);
         assert($reflection->isInvokableObject() === true);
+        assert($reflection->isConstructor() === false);
     });
 
     it('should by callable by itself', function () {
