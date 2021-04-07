@@ -56,6 +56,25 @@ var_dump($t2->isClassName()); // false
 var_dump($t2->getType()); // "string" 
 ```
 
+### Checking if value satisfies parameter type declaration
+
+```php
+$function = function (int|string $value = null): mixed {
+    // function body
+};
+
+$reflection = new CallableReflection($function);
+
+[$param] = $reflection->getParameters();
+
+var_dump($param->satisfies(null)); // true
+var_dump($param->satisfies(1)); // true
+var_dump($param->satisfies('Hello')); // true
+var_dump($param->satisfies(2.5)); // false
+var_dump($param->satisfies([])); // false
+var_dump($param->satisfies(true)); // false
+```
+
 ### Invoking callable via reflection
 
 ```php
