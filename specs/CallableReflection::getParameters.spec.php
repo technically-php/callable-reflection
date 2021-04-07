@@ -4,6 +4,7 @@ use Technically\CallableReflection\Parameters\TypeReflection;
 use Technically\CallableReflection\CallableReflection;
 use Technically\CallableReflection\Specs\Fixtures\MyParentDependencyCallable;
 use Technically\CallableReflection\Specs\Fixtures\MySelfDependencyCallable;
+use Technically\CallableReflection\Specs\Fixtures\myuniontypesclosure;
 
 describe('CallableReflection::getParameters()', function () {
     it('should reflect arguments of callable without arguments', function () {
@@ -69,9 +70,7 @@ describe('CallableReflection::getParameters()', function () {
     if (PHP_MAJOR_VERSION >= 8) {
         it('should reflect arguments of callable with PHP8 union-type hints', function () {
             $reflection = new CallableReflection(
-                function (int|false $a, string|int|null $b, Closure|callable|bool $c = null) {
-                    return null;
-                }
+                require __DIR__ . '/Fixtures/my_union_types_closure.php'
             );
 
             assert(count($reflection->getParameters()) === 3);
