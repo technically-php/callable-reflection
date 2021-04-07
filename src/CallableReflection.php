@@ -116,11 +116,7 @@ final class CallableReflection
         }
 
         if ($reflector = $class->getConstructor()) {
-            $constructor = function (...$args) use ($class) {
-                return $class->newInstance(...$args);
-            };
-
-            return new self($constructor, $reflector, self::TYPE_CONSTRUCTOR);
+            return new self([$class, 'newInstance'], $reflector, self::TYPE_CONSTRUCTOR);
         }
 
         $constructor = function () use ($class) {
