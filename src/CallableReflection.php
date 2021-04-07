@@ -249,16 +249,12 @@ final class CallableReflection
 
         /** @noinspection PhpElementIsNotAvailableInCurrentPhpVersionInspection */
         if (PHP_VERSION_ID >= 80000 && $type instanceof \ReflectionUnionType) {
-            return array_values(array_filter(array_map(
+            return array_map(
                 function (ReflectionNamedType $type) use ($className) {
-                    if ($type->getName() === 'null') {
-                        return null;
-                    }
-
                     return new TypeReflection($type->getName(), $className);
                 },
                 $type->getTypes()
-            )));
+            );
         }
 
         return [];

@@ -32,6 +32,23 @@ describe('TypeReflection::satisfies()', function () {
             assert($type->satisfies((object) []) === true);
         });
 
+        it('should check if a value satisfies `null` type declaration', function () use ($closure, $iterator) {
+            $type = new TypeReflection('null');
+
+            assert($type->satisfies(true) === false);
+            assert($type->satisfies(false) === false);
+            assert($type->satisfies(null) === true);
+            assert($type->satisfies('') === false);
+            assert($type->satisfies('is_object') === false);
+            assert($type->satisfies([]) === false);
+            assert($type->satisfies($closure) === false);
+            assert($type->satisfies($iterator) === false);
+            assert($type->satisfies(1) === false);
+            assert($type->satisfies(1.0) === false);
+            assert($type->satisfies(2.5) === false);
+            assert($type->satisfies((object) []) === false);
+        });
+
         it('should check if a value satisfies `false` type declaration', function () use ($closure, $iterator) {
             $type = new TypeReflection('false');
 

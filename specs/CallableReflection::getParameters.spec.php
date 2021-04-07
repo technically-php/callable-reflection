@@ -95,7 +95,7 @@ describe('CallableReflection::getParameters()', function () {
             assert($b->getTypes() == [
                 new TypeReflection('string'),
                 new TypeReflection('int'),
-                // Note: `null` is intentionally skipped, as it already contributed to `->isNullable() === true`
+                new TypeReflection('null'),
             ]);
 
             assert($c->getName() === 'c');
@@ -107,6 +107,7 @@ describe('CallableReflection::getParameters()', function () {
                 new TypeReflection('Closure'),
                 new TypeReflection('callable'),
                 new TypeReflection('bool'),
+                new TypeReflection('null'),
             ]);
         });
     }

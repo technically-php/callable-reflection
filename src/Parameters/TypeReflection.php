@@ -26,9 +26,6 @@ final class TypeReflection
      */
     public function __construct(string $type, string $class = null)
     {
-        if ($type === 'null') {
-            throw new InvalidArgumentException('Type `null` is intentionally unsupported by this implementation.');
-        }
         if ($type === 'self' && empty($class)) {
             throw new InvalidArgumentException('Type `self` can only be used inside classes.');
         }
@@ -46,6 +43,14 @@ final class TypeReflection
     public function getType(): string
     {
         return $this->type;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isNull(): bool
+    {
+        return PHP_VERSION_ID >= 80000 && $this->type === 'null';
     }
 
     /**
@@ -121,7 +126,8 @@ final class TypeReflection
      */
     public function isClassName(): bool
     {
-        return ! $this->isScalar()
+        return ! $this->isNull()
+            && ! $this->isScalar()
             && ! $this->isArray()
             && ! $this->isIterable()
             && ! $this->isObject()
@@ -176,6 +182,10 @@ final class TypeReflection
     {
         if ($this->isMixed()) {
             return true;
+        }
+
+        if ($this->isNull()) {
+            return is_null($value);
         }
 
         if ($this->isClassRequirement()) {

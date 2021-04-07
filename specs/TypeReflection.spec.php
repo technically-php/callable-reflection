@@ -8,18 +8,6 @@ use Technically\CallableReflection\Specs\Fixtures\MyParentDependencyCallable;
 use Technically\CallableReflection\Specs\Fixtures\MySelfDependencyCallable;
 
 describe('TypeReflection', function () {
-    it('should throw exception for `null` type declaration', function () {
-        try {
-            new TypeReflection('null');
-        } catch (Exception $exception) {
-            // passthru
-        }
-
-        assert(isset($exception));
-        assert($exception instanceof InvalidArgumentException);
-        assert($exception->getMessage() === 'Type `null` is intentionally unsupported by this implementation.');
-    });
-
     it('should throw exception for `self` type declaration without a class name.', function () {
         try {
             new TypeReflection('self');
