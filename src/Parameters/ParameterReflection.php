@@ -110,6 +110,11 @@ final class ParameterReflection
      */
     public function satisfies($value): bool
     {
+        if (empty($this->types)) {
+            // Parameters without type declarations allow everything (like `mixed`).
+            return true;
+        }
+
         if (is_null($value) && $this->isNullable()) {
             return true;
         }

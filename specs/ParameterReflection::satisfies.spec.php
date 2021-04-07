@@ -39,4 +39,19 @@ describe('ParameterReflection::satisfies()', function () {
         assert($parameter->satisfies(2.5) === false);
         assert($parameter->satisfies((object) []) === false);
     });
+
+    it('should treat parameters without type declarations as allow-everything', function () {
+        $parameter = new ParameterReflection('whatever', []);
+
+        assert($parameter->satisfies(true) === true);
+        assert($parameter->satisfies(false) === true);
+        assert($parameter->satisfies(null) === true);
+        assert($parameter->satisfies('') === true);
+        assert($parameter->satisfies('is_object') === true);
+        assert($parameter->satisfies([]) === true);
+        assert($parameter->satisfies(1) === true);
+        assert($parameter->satisfies(1.0) === true);
+        assert($parameter->satisfies(2.5) === true);
+        assert($parameter->satisfies((object) []) === true);
+    });
 });
