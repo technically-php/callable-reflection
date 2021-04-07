@@ -48,6 +48,14 @@ final class TypeReflection
     /**
      * @return bool
      */
+    public function isVoid(): bool
+    {
+        return $this->type === 'void';
+    }
+
+    /**
+     * @return bool
+     */
     public function isNull(): bool
     {
         return PHP_VERSION_ID >= 80000 && $this->type === 'null';
@@ -78,7 +86,7 @@ final class TypeReflection
      */
     public function isIterable(): bool
     {
-        return PHP_VERSION_ID >= 70100 && $this->type === 'iterable';
+        return $this->type === 'iterable';
     }
 
     /**
@@ -180,6 +188,10 @@ final class TypeReflection
      */
     public function satisfies($value): bool
     {
+        if ($this->isVoid()) {
+            return false;
+        }
+
         if ($this->isMixed()) {
             return true;
         }

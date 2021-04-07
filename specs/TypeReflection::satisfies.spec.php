@@ -14,6 +14,23 @@ describe('TypeReflection::satisfies()', function () {
     };
     $iterator = $closure();
 
+    it('should check if a value satisfies `void` type declaration', function () use ($closure, $iterator) {
+        $type = new TypeReflection('void');
+
+        assert($type->satisfies(true) === false);
+        assert($type->satisfies(false) === false);
+        assert($type->satisfies(null) === false);
+        assert($type->satisfies('') === false);
+        assert($type->satisfies('is_object') === false);
+        assert($type->satisfies([]) === false);
+        assert($type->satisfies($closure) === false);
+        assert($type->satisfies($iterator) === false);
+        assert($type->satisfies(1) === false);
+        assert($type->satisfies(1.0) === false);
+        assert($type->satisfies(2.5) === false);
+        assert($type->satisfies((object) []) === false);
+    });
+
     if (PHP_VERSION_ID >= 80000) {
         it('should check if a value satisfies `mixed` type declaration', function () use ($closure, $iterator) {
             $type = new TypeReflection('mixed');
