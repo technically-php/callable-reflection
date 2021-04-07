@@ -28,7 +28,6 @@ composer require technically/callable-reflection
 
 ```php
 <?php
-
 $function = function (string $abstract, Closure|string|null $concrete): mixed {
     // function body
 };
@@ -44,9 +43,9 @@ var_dump($reflection->isClosure()); // true
 var_dump($p2->getName()); // factory
 var_dump($p2->isNullable()); // true
 var_dump($p2->isOptional()); // false
-var_dump($p2->hasTypeDeclarations()); // true
+var_dump($p2->hasTypes()); // true
 
-[$t1, $t2] = $p2->getTypeDeclarations();
+[$t1, $t2] = $p2->getTypes();
 
 var_dump($t1->isScalar()); // false 
 var_dump($t1->isClassName()); // true 

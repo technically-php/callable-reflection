@@ -158,7 +158,7 @@ final class CallableReflection
                 $values[] = $reflection->getDefaultValue();
                 continue;
             }
-            if ($reflection->hasTypeDeclarations() && $reflection->isNullable()) {
+            if ($reflection->hasTypes() && $reflection->isNullable()) {
                 $values[] = null;
                 continue;
             }

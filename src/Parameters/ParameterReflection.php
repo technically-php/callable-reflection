@@ -63,7 +63,7 @@ final class ParameterReflection
     /**
      * @return bool
      */
-    public function hasTypeDeclarations(): bool
+    public function hasTypes(): bool
     {
         return count($this->types) > 0;
     }
@@ -71,7 +71,7 @@ final class ParameterReflection
     /**
      * @return TypeReflection[]
      */
-    public function getTypeDeclarations(): array
+    public function getTypes(): array
     {
         return $this->types;
     }

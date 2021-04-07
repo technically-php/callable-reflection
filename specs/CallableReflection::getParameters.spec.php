@@ -27,16 +27,16 @@ describe('CallableReflection::getParameters()', function () {
         assert($i->getName() === 'i');
         assert($i->isNullable() === true);
         assert($i->isOptional() === false);
-        assert($i->hasTypeDeclarations() === true);
-        assert($i->getTypeDeclarations() == [
+        assert($i->hasTypes() === true);
+        assert($i->getTypes() == [
             new TypeReflection('int'),
         ]);
 
         assert($a->getName() === 'a');
         assert($a->isNullable() === false);
         assert($a->isOptional() === false);
-        assert($a->hasTypeDeclarations() === true);
-        assert($a->getTypeDeclarations() == [
+        assert($a->hasTypes() === true);
+        assert($a->getTypes() == [
             new TypeReflection('string'),
         ]);
 
@@ -44,8 +44,8 @@ describe('CallableReflection::getParameters()', function () {
         assert($b->isNullable() === false);
         assert($b->isOptional() === true);
         assert($b->getDefaultValue() === 'B');
-        assert($b->hasTypeDeclarations() === true);
-        assert($b->getTypeDeclarations() == [
+        assert($b->hasTypes() === true);
+        assert($b->getTypes() == [
             new TypeReflection('string'),
         ]);
 
@@ -53,8 +53,8 @@ describe('CallableReflection::getParameters()', function () {
         assert($c->isNullable() === true);
         assert($c->isOptional() === true);
         assert($c->getDefaultValue() === null);
-        assert($c->hasTypeDeclarations() === true);
-        assert($c->getTypeDeclarations() == [
+        assert($c->hasTypes() === true);
+        assert($c->getTypes() == [
             new TypeReflection('string'),
         ]);
 
@@ -63,8 +63,8 @@ describe('CallableReflection::getParameters()', function () {
         assert($d->isNullable() === true);
         assert($d->isOptional() === true);
         assert($d->getDefaultValue() === 1);
-        assert($d->hasTypeDeclarations() === false);
-        assert($d->getTypeDeclarations() === []);
+        assert($d->hasTypes() === false);
+        assert($d->getTypes() === []);
     });
 
     if (PHP_MAJOR_VERSION >= 8) {
@@ -80,8 +80,8 @@ describe('CallableReflection::getParameters()', function () {
             assert($a->getName() === 'a');
             assert($a->isNullable() === false);
             assert($a->isOptional() === false);
-            assert($a->hasTypeDeclarations() === true);
-            assert($a->getTypeDeclarations() == [
+            assert($a->hasTypes() === true);
+            assert($a->getTypes() == [
                 new TypeReflection('int'),
                 new TypeReflection('false'),
             ]);
@@ -89,8 +89,8 @@ describe('CallableReflection::getParameters()', function () {
             assert($b->getName() === 'b');
             assert($b->isNullable() === true);
             assert($b->isOptional() === false);
-            assert($b->hasTypeDeclarations() === true);
-            assert($b->getTypeDeclarations() == [
+            assert($b->hasTypes() === true);
+            assert($b->getTypes() == [
                 new TypeReflection('string'),
                 new TypeReflection('int'),
                 // Note: `null` is intentionally skipped, as it already contributed to `->isNullable() === true`
@@ -100,8 +100,8 @@ describe('CallableReflection::getParameters()', function () {
             assert($c->isNullable() === true);
             assert($c->isOptional() === true);
             assert($c->getDefaultValue() === null);
-            assert($c->hasTypeDeclarations() === true);
-            assert($c->getTypeDeclarations() == [
+            assert($c->hasTypes() === true);
+            assert($c->getTypes() == [
                 new TypeReflection('Closure'),
                 new TypeReflection('callable'),
                 new TypeReflection('bool'),
@@ -124,8 +124,8 @@ describe('CallableReflection::getParameters()', function () {
         assert($self->isNullable() === true);
         assert($self->isOptional() === true);
         assert($self->getDefaultValue() === null);
-        assert($self->hasTypeDeclarations() === true);
-        assert($self->getTypeDeclarations() == [
+        assert($self->hasTypes() === true);
+        assert($self->getTypes() == [
             new TypeReflection('self', MySelfDependencyCallable::class),
         ]);
     });
@@ -145,8 +145,8 @@ describe('CallableReflection::getParameters()', function () {
         assert($self->isNullable() === true);
         assert($self->isOptional() === false);
         assert($self->getDefaultValue() === null);
-        assert($self->hasTypeDeclarations() === true);
-        assert($self->getTypeDeclarations() == [
+        assert($self->hasTypes() === true);
+        assert($self->getTypes() == [
             new TypeReflection('self', MyParentDependencyCallable::class),
         ]);
 
@@ -154,8 +154,8 @@ describe('CallableReflection::getParameters()', function () {
         assert($parent->isNullable() === true);
         assert($parent->isOptional() === true);
         assert($parent->getDefaultValue() === null);
-        assert($parent->hasTypeDeclarations() === true);
-        assert($parent->getTypeDeclarations() == [
+        assert($parent->hasTypes() === true);
+        assert($parent->getTypes() == [
             new TypeReflection('parent', MyParentDependencyCallable::class),
         ]);
     });
