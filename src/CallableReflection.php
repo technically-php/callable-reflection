@@ -265,7 +265,7 @@ final class CallableReflection
                 $types,
                 $parameter->isOptional(),
                 $parameter->allowsNull(),
-                $parameter->isOptional() ? $parameter->getDefaultValue() : null
+                $parameter->isDefaultValueAvailable() ? $parameter->getDefaultValue() : null
             );
         }
 

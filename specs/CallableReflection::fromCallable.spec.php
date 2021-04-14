@@ -117,4 +117,14 @@ describe('CallableReflection::fromCallable', function () {
 
         assert($reflection('Captain') === 'Hello Captain!');
     });
+
+    it('should reflect callable with variadic parameters', function () {
+        $reflection = CallableReflection::fromCallable(function (string ...$names) {
+            return sprintf('Hello %s!', implode(', ', $names));
+        });
+
+        is_callable($reflection);
+
+        assert($reflection('Captain', 'Data', 'Commander') === 'Hello Captain, Data, Commander!');
+    });
 });
