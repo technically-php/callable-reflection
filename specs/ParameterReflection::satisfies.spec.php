@@ -54,4 +54,31 @@ describe('ParameterReflection::satisfies()', function () {
         assert($parameter->satisfies(2.5) === true);
         assert($parameter->satisfies((object) []) === true);
     });
+
+    it('should require array values for variadic parameters', function () {
+        $parameter = new ParameterReflection(
+            'names',
+            [new TypeReflection('string')],
+            $optional = true,
+            $nullable = false,
+            $variadic = true,
+            $promoted = false,
+            $default = []
+        );
+
+        assert($parameter->satisfies(true) === false);
+        assert($parameter->satisfies(false) === false);
+        assert($parameter->satisfies(null) === false);
+        assert($parameter->satisfies('') === false);
+        assert($parameter->satisfies('is_object') === false);
+        assert($parameter->satisfies([]) === true);
+        assert($parameter->satisfies(['x', 'y']) === true);
+        assert($parameter->satisfies(['x', 5]) === false);
+        assert($parameter->satisfies(1) === false);
+        assert($parameter->satisfies([1, 2, 3]) === false);
+        assert($parameter->satisfies(1.0) === false);
+        assert($parameter->satisfies([1.0]) === false);
+        assert($parameter->satisfies(2.5) === false);
+        assert($parameter->satisfies((object) []) === false);
+    });
 });

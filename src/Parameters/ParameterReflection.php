@@ -29,6 +29,11 @@ final class ParameterReflection
     /**
      * @var bool
      */
+    private $variadic;
+
+    /**
+     * @var bool
+     */
     private $promoted;
 
     /**
@@ -41,6 +46,8 @@ final class ParameterReflection
      * @param TypeReflection[] $types
      * @param bool $optional
      * @param bool $nullable
+     * @param bool $variadic
+     * @param bool $promoted
      * @param mixed|null $default
      */
     public function __construct(
@@ -48,6 +55,7 @@ final class ParameterReflection
         array $types,
         bool $optional = false,
         bool $nullable = false,
+        bool $variadic = false,
         bool $promoted = false,
         $default = null
     ) {
@@ -57,6 +65,7 @@ final class ParameterReflection
         })(...$types);
         $this->optional = $optional;
         $this->nullable = $nullable;
+        $this->variadic = $variadic;
         $this->promoted = $promoted;
         $this->default = $default;
     }
@@ -104,6 +113,14 @@ final class ParameterReflection
     /**
      * @return bool
      */
+    public function isVariadic(): bool
+    {
+        return $this->variadic;
+    }
+
+    /**
+     * @return bool
+     */
     public function isPromoted(): bool
     {
         return $this->promoted;
@@ -124,6 +141,35 @@ final class ParameterReflection
      * @return bool
      */
     public function satisfies($value): bool
+    {
+        if ($this->isVariadic()) {
+            return $this->satisfiesVariadic($value);
+        }
+
+        return $this->satisfiesSingular($value);
+    }
+
+    private function satisfiesVariadic($value): bool
+    {
+        if (! is_array($value)) {
+            return false;
+        }
+
+        if (empty($this->types)) {
+            // Parameters without type declarations allow everything (like `mixed`).
+            return true;
+        }
+
+        foreach ($value as $item) {
+            if (! $this->satisfiesSingular($item)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private function satisfiesSingular($value): bool
     {
         if (empty($this->types)) {
             // Parameters without type declarations allow everything (like `mixed`).

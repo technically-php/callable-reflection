@@ -261,14 +261,18 @@ final class CallableReflection
             $types = self::reflectParameterTypes($parameter, $className);
 
             $isPromoted = PHP_VERSION_ID >= 80000 ? $parameter->isPromoted() : false;
+            $default = $parameter->isDefaultValueAvailable() ? $parameter->getDefaultValue() : (
+                $parameter->isVariadic() ? [] : null
+            );
 
             $parameters[] = new ParameterReflection(
                 $parameter->getName(),
                 $types,
                 $parameter->isOptional(),
                 $parameter->allowsNull(),
+                $parameter->isVariadic(),
                 $isPromoted,
-                $parameter->isDefaultValueAvailable() ? $parameter->getDefaultValue() : null
+                $default
             );
         }
 

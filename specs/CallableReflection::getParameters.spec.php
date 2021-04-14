@@ -6,7 +6,6 @@ use Technically\CallableReflection\Parameters\TypeReflection;
 use Technically\CallableReflection\CallableReflection;
 use Technically\CallableReflection\Specs\Fixtures\MyParentDependencyCallable;
 use Technically\CallableReflection\Specs\Fixtures\MySelfDependencyCallable;
-use Technically\CallableReflection\Specs\Fixtures\myuniontypesclosure;
 
 describe('CallableReflection::getParameters()', function () {
     it('should reflect arguments of callable without arguments', function () {
@@ -29,6 +28,7 @@ describe('CallableReflection::getParameters()', function () {
         assert($i->getName() === 'i');
         assert($i->isNullable() === true);
         assert($i->isOptional() === false);
+        assert($i->isVariadic() === false);
         assert($i->hasTypes() === true);
         assert($i->getTypes() == [
             new TypeReflection('int'),
@@ -37,6 +37,7 @@ describe('CallableReflection::getParameters()', function () {
         assert($a->getName() === 'a');
         assert($a->isNullable() === false);
         assert($a->isOptional() === false);
+        assert($a->isVariadic() === false);
         assert($a->hasTypes() === true);
         assert($a->getTypes() == [
             new TypeReflection('string'),
@@ -45,6 +46,7 @@ describe('CallableReflection::getParameters()', function () {
         assert($b->getName() === 'b');
         assert($b->isNullable() === false);
         assert($b->isOptional() === true);
+        assert($b->isVariadic() === false);
         assert($b->getDefaultValue() === 'B');
         assert($b->hasTypes() === true);
         assert($b->getTypes() == [
@@ -54,6 +56,7 @@ describe('CallableReflection::getParameters()', function () {
         assert($c->getName() === 'c');
         assert($c->isNullable() === true);
         assert($c->isOptional() === true);
+        assert($c->isVariadic() === false);
         assert($c->getDefaultValue() === null);
         assert($c->hasTypes() === true);
         assert($c->getTypes() == [
@@ -64,6 +67,7 @@ describe('CallableReflection::getParameters()', function () {
         // Note: it's nullable because there are no type declarations. Anything is accepted, including null.
         assert($d->isNullable() === true);
         assert($d->isOptional() === true);
+        assert($d->isVariadic() === false);
         assert($d->getDefaultValue() === 1);
         assert($d->hasTypes() === false);
         assert($d->getTypes() === []);
@@ -82,6 +86,7 @@ describe('CallableReflection::getParameters()', function () {
             assert($a->getName() === 'a');
             assert($a->isNullable() === false);
             assert($a->isOptional() === false);
+            assert($a->isVariadic() === false);
             assert($a->hasTypes() === true);
             assert($a->getTypes() == [
                 new TypeReflection('int'),
@@ -91,6 +96,7 @@ describe('CallableReflection::getParameters()', function () {
             assert($b->getName() === 'b');
             assert($b->isNullable() === true);
             assert($b->isOptional() === false);
+            assert($b->isVariadic() === false);
             assert($b->hasTypes() === true);
             assert($b->getTypes() == [
                 new TypeReflection('string'),
@@ -101,6 +107,7 @@ describe('CallableReflection::getParameters()', function () {
             assert($c->getName() === 'c');
             assert($c->isNullable() === true);
             assert($c->isOptional() === true);
+            assert($c->isVariadic() === false);
             assert($c->getDefaultValue() === null);
             assert($c->hasTypes() === true);
             assert($c->getTypes() == [
@@ -126,6 +133,7 @@ describe('CallableReflection::getParameters()', function () {
         assert($self->getName() === 'self');
         assert($self->isNullable() === true);
         assert($self->isOptional() === true);
+        assert($self->isVariadic() === false);
         assert($self->getDefaultValue() === null);
         assert($self->hasTypes() === true);
         assert($self->getTypes() == [
@@ -147,6 +155,7 @@ describe('CallableReflection::getParameters()', function () {
         assert($self->getName() === 'self');
         assert($self->isNullable() === true);
         assert($self->isOptional() === false);
+        assert($self->isVariadic() === false);
         assert($self->getDefaultValue() === null);
         assert($self->hasTypes() === true);
         assert($self->getTypes() == [
@@ -156,10 +165,41 @@ describe('CallableReflection::getParameters()', function () {
         assert($parent->getName() === 'parent');
         assert($parent->isNullable() === true);
         assert($parent->isOptional() === true);
+        assert($parent->isVariadic() === false);
         assert($parent->getDefaultValue() === null);
         assert($parent->hasTypes() === true);
         assert($parent->getTypes() == [
             new TypeReflection('parent', MyParentDependencyCallable::class),
+        ]);
+    });
+
+    it('should support variadic parameters', function () {
+        $reflection = CallableReflection::fromCallable(function (string $name, string ... $aliases) {
+            return array_merge([$name], $aliases);
+        });
+
+        assert(count($reflection->getParameters()) === 2);
+
+        [$name, $aliases] = $reflection->getParameters();
+
+        assert($name->getName() === 'name');
+        assert($name->isNullable() === false);
+        assert($name->isOptional() === false);
+        assert($name->isVariadic() === false);
+        assert($name->getDefaultValue() === null);
+        assert($name->hasTypes() === true);
+        assert($name->getTypes() == [
+            new TypeReflection('string'),
+        ]);
+
+        assert($aliases->getName() === 'aliases');
+        assert($aliases->isNullable() === false);
+        assert($aliases->isOptional() === true);
+        assert($aliases->isVariadic() === true);
+        assert($aliases->getDefaultValue() === []);
+        assert($aliases->hasTypes() === true);
+        assert($aliases->getTypes() == [
+            new TypeReflection('string'),
         ]);
     });
 });
