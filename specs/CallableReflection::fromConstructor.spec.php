@@ -6,6 +6,7 @@ use Technically\CallableReflection\CallableReflection;
 use Technically\CallableReflection\Parameters\TypeReflection;
 use Technically\CallableReflection\Specs\Fixtures\MyClass;
 use Technically\CallableReflection\Specs\Fixtures\MyClassWithConstructor;
+use Technically\CallableReflection\Specs\Fixtures\MyClassWithConstructorPropertiesPromotion;
 use Technically\CallableReflection\Specs\Fixtures\MyInterface;
 
 describe('CallableReflection::fromConstructor', function () {
@@ -96,4 +97,36 @@ describe('CallableReflection::fromConstructor', function () {
         assert($instance->code === 10);
         assert($instance->previous === $exception);
     });
+
+    if (PHP_VERSION_ID >= 80000) {
+        it('should reflect constructors with promoted properties', function () {
+            $reflection = CallableReflection::fromConstructor(MyClassWithConstructorPropertiesPromotion::class);
+
+            assert($reflection->isConstructor() === true);
+            assert(count($reflection->getParameters()) === 2);
+
+            [$name, $code] = $reflection->getParameters();
+
+            assert($name->getName() === 'name');
+            assert($name->isOptional() === false);
+            assert($name->isPromoted() === true);
+            assert($name->getTypes() == [
+                new TypeReflection('string', MyClassWithConstructorPropertiesPromotion::class),
+            ]);
+
+            assert($code->getName() === 'code');
+            assert($name->isOptional() === false);
+            assert($name->isPromoted() === true);
+            assert($code->getTypes() == [
+                new TypeReflection('int', MyClassWithConstructorPropertiesPromotion::class),
+            ]);
+
+
+            $instance = $reflection->call('Tommy', 7);
+
+            assert($instance instanceof MyClassWithConstructorPropertiesPromotion);
+            assert($instance->name === 'Tommy');
+            assert($instance->code === 7);
+        });
+    }
 });

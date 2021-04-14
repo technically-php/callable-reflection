@@ -27,6 +27,11 @@ final class ParameterReflection
     private $nullable;
 
     /**
+     * @var bool
+     */
+    private $promoted;
+
+    /**
      * @var mixed|null
      */
     private $default;
@@ -43,6 +48,7 @@ final class ParameterReflection
         array $types,
         bool $optional = false,
         bool $nullable = false,
+        bool $promoted = false,
         $default = null
     ) {
         $this->name = $name;
@@ -51,6 +57,7 @@ final class ParameterReflection
         })(...$types);
         $this->optional = $optional;
         $this->nullable = $nullable;
+        $this->promoted = $promoted;
         $this->default = $default;
     }
 
@@ -92,6 +99,14 @@ final class ParameterReflection
     public function isOptional(): bool
     {
         return $this->optional;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPromoted(): bool
+    {
+        return $this->promoted;
     }
 
     /**

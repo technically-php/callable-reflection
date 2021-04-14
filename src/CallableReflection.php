@@ -260,11 +260,14 @@ final class CallableReflection
             $className = $reflector instanceof ReflectionMethod ? $reflector->getDeclaringClass()->getName() : null;
             $types = self::reflectParameterTypes($parameter, $className);
 
+            $isPromoted = PHP_VERSION_ID >= 80000 ? $parameter->isPromoted() : false;
+
             $parameters[] = new ParameterReflection(
                 $parameter->getName(),
                 $types,
                 $parameter->isOptional(),
                 $parameter->allowsNull(),
+                $isPromoted,
                 $parameter->isDefaultValueAvailable() ? $parameter->getDefaultValue() : null
             );
         }
