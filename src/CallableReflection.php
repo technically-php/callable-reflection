@@ -346,7 +346,12 @@ final class CallableReflection
                 }
 
                 if ($this->variadic && ! array_key_exists($this->variadic->getName(), $arguments)) {
-                    $argumentsMap[$this->variadic->getName()][$i] = $argument;
+                    if (PHP_VERSION_ID >= 80000) {
+                        // Unpacking named parameters is only supported since PHP8.0
+                        $argumentsMap[$this->variadic->getName()][$i] = $argument;
+                    } else {
+                        $argumentsMap[$this->variadic->getName()][] = $argument;
+                    }
                     continue;
                 }
 
