@@ -142,17 +142,6 @@ final class CallableReflection
         return new self($constructor, $reflector, self::TYPE_CONSTRUCTOR);
     }
 
-    /**
-     * @param ParameterReflection[] $parameters
-     * @return ParameterReflection|null
-     */
-    private static function findVariadicParameter(array $parameters): ?ParameterReflection
-    {
-        $last = $parameters[count($parameters) - 1] ?? null;
-
-        return $last && $last->isVariadic() ? $last : null;
-    }
-
     public function getCallable(): callable
     {
         return $this->callable;
@@ -169,6 +158,11 @@ final class CallableReflection
     /**
      * @param mixed ...$arguments
      * @return mixed
+     *
+     * @throws ArgumentCountError If too few or too many arguments passed.
+     * @throws Error If positional arguments passed after named arguments.
+     * @throws Error If named parameter overwrites previous positional argument value.
+     * @throws Error If unknown named parameter passed.
      */
     public function call(...$arguments)
     {
@@ -178,6 +172,11 @@ final class CallableReflection
     /**
      * @param mixed ...$arguments
      * @return mixed
+     *
+     * @throws ArgumentCountError If too few or too many arguments passed.
+     * @throws Error If positional arguments passed after named arguments.
+     * @throws Error If named parameter overwrites previous positional argument value.
+     * @throws Error If unknown named parameter passed.
      */
     public function __invoke(...$arguments)
     {
@@ -187,7 +186,10 @@ final class CallableReflection
     /**
      * @param array $arguments
      * @return mixed
-     * @throws ArgumentCountError If too few or too many arguments passed to the callable.
+     * @throws ArgumentCountError If too few or too many arguments passed.
+     * @throws Error If positional arguments passed after named arguments.
+     * @throws Error If named parameter overwrites previous positional argument value.
+     * @throws Error If unknown named parameter passed.
      */
     public function apply(array $arguments)
     {
@@ -236,18 +238,62 @@ final class CallableReflection
      * @param ParameterReflection[] $reflections
      * @param array<string|int,mixed> $arguments
      * @return array
-     * @throws ArgumentCountError When too few or too many arguments passed.
+     * @throws ArgumentCountError If too few or too many arguments passed.
+     * @throws Error If positional arguments passed after named arguments.
+     * @throws Error If named parameter overwrites previous positional argument value.
+     * @throws Error If unknown named parameter passed.
+     */
+    private function resolveArguments(array $reflections, array $arguments): array
+    {
+        $argumentsMap = self::combineNamedArgumentsMap($arguments);
+
+        $values = [];
+
+        foreach ($reflections as $i => $reflection) {
+            if ($reflection->isVariadic()) {
+                $values = array_merge($values, $argumentsMap[$reflection->getName()] ?? []);
+                continue;
+            }
+            if (array_key_exists($reflection->getName(), $argumentsMap)) {
+                $values[] = $argumentsMap[$reflection->getName()];
+                continue;
+            }
+            if ($reflection->isOptional()) {
+                $values[] = $reflection->getDefaultValue();
+                continue;
+            }
+            if ($reflection->hasTypes() && $reflection->isNullable()) {
+                $values[] = null;
+                continue;
+            }
+
+            throw new ArgumentCountError(
+                sprintf("Too few arguments: Argument #%s (`%s`) is not passed.", $i + 1, $reflection->getName())
+            );
+        }
+
+        return $values;
+    }
+
+    /**
+     * Combine arguments array of any shape to named arguments map.
+     *
+     * Also perform assertions on the arguments array, following PHP8 named parameters
+     * unpacking implementation, where possible (and makes sense). However, we have one
+     * important difference, comparing to PHP8: it is possible to pass variadic argument
+     * array with a named parameter. PHP8 does not allow this.
+     *
+     * @param array<string|int,mixed> $arguments
+     * @return array<string,mixed> Map holding parameter values by name.
+     *
+     * @throws ArgumentCountError When too many arguments passed.
      * @throws Error When positional arguments passed after named arguments.
      * @throws Error When named parameter overwrites previous positional argument value.
      * @throws Error When unknown named parameter passed.
      */
-    private function resolveArguments(array $reflections, array $arguments): array
+    private function combineNamedArgumentsMap(array $arguments): array
     {
-        /**
-         * Map holding parameter values by name.
-         * @var array<string,mixed>
-         */
-        $valuesMap = [];
+        $argumentsMap = [];
 
         /**
          * An incremental index of the current parameter being used for positional arguments.
@@ -277,11 +323,11 @@ final class CallableReflection
                 $parameter = $this->parameters[$positionalArgumentIndex];
 
                 if ($parameter->isVariadic()) {
-                    $valuesMap[$parameter->getName()][] = $argument;
+                    $argumentsMap[$parameter->getName()][] = $argument;
                     continue;  // Continue without incrementing `$positionalArgumentIndex`.
                 }
 
-                $valuesMap[$parameter->getName()] = $argument;
+                $argumentsMap[$parameter->getName()] = $argument;
                 $positionalArgumentIndex++;
 
                 continue;
@@ -290,17 +336,17 @@ final class CallableReflection
             if (is_string($i)) {
                 $allowPositionalArguments = false;
 
-                if (array_key_exists($i, $valuesMap)) {
+                if (array_key_exists($i, $argumentsMap)) {
                     throw new Error("Named parameter `{$i}` overwrites positional argument.");
                 }
 
                 if (array_key_exists($i, $this->parametersMap)) {
-                    $valuesMap[$i] = $argument;
+                    $argumentsMap[$i] = $argument;
                     continue;
                 }
 
                 if ($this->variadic && ! array_key_exists($this->variadic->getName(), $arguments)) {
-                    $valuesMap[$this->variadic->getName()][$i] = $argument;
+                    $argumentsMap[$this->variadic->getName()][$i] = $argument;
                     continue;
                 }
 
@@ -308,32 +354,7 @@ final class CallableReflection
             }
         }
 
-        $values = [];
-
-        foreach ($reflections as $i => $reflection) {
-            if ($reflection->isVariadic()) {
-                $values = array_merge($values, $valuesMap[$reflection->getName()] ?? []);
-                continue;
-            }
-            if (array_key_exists($reflection->getName(), $valuesMap)) {
-                $values[] = $valuesMap[$reflection->getName()];
-                continue;
-            }
-            if ($reflection->isOptional()) {
-                $values[] = $reflection->getDefaultValue();
-                continue;
-            }
-            if ($reflection->hasTypes() && $reflection->isNullable()) {
-                $values[] = null;
-                continue;
-            }
-
-            throw new ArgumentCountError(
-                sprintf("Too few arguments: Argument #%s (`%s`) is not passed.", $i + 1, $reflection->getName())
-            );
-        }
-
-        return $values;
+        return $argumentsMap;
     }
 
     /**
@@ -349,5 +370,16 @@ final class CallableReflection
         }
 
         return $parameters;
+    }
+
+    /**
+     * @param ParameterReflection[] $parameters
+     * @return ParameterReflection|null
+     */
+    private static function findVariadicParameter(array $parameters): ?ParameterReflection
+    {
+        $last = $parameters[count($parameters) - 1] ?? null;
+
+        return $last && $last->isVariadic() ? $last : null;
     }
 }
