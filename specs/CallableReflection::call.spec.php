@@ -54,10 +54,8 @@ describe('CallableReflection::call()', function () {
                 return $greeting . ($names ? ', ' . implode(', ', $names) : '') . '!';
             });
 
-            /** @noinspection PhpLanguageLevelInspection */
-            assert($reflection->call(greeting: 'Hello') === 'Hello!');
-            /** @noinspection PhpLanguageLevelInspection */
-            assert($reflection->call(names: ['Spok', 'Captain']) === 'Hello, Spok, Captain!');
+            assert($reflection->call(...['greeting' => 'Hello']) === 'Hello!');
+            assert($reflection->call(...['names' =>['Spok', 'Captain']]) === 'Hello, Spok, Captain!');
         });
 
         it('it should call reflected callable with variadic arguments passing extra named arguments', function () {
@@ -65,10 +63,8 @@ describe('CallableReflection::call()', function () {
                 return $greeting . ($names ? ', ' . implode(', ', $names) : '') . '!';
             });
 
-            /** @noinspection PhpLanguageLevelInspection */
-            assert($reflection->call(greeting: 'Hello') === 'Hello!');
-            /** @noinspection PhpLanguageLevelInspection */
-            assert($reflection->call(officer: 'Spok', captain: 'Picard') === 'Hello, Spok, Picard!');
+            assert($reflection->call(...['greeting' => 'Hello']) === 'Hello!');
+            assert($reflection->call(...['officer' => 'Spok', 'captain' => 'Picard']) === 'Hello, Spok, Picard!');
         });
     }
 });
