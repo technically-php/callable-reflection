@@ -20,6 +20,9 @@ final class TypeReflection
     private $class;
 
     /**
+     * @internal Please do not instantiate TypeReflection instances directly.
+     *           This API is considered internal and may be modified without changing major version number.
+     *
      * @param string $type
      * @param string|null $class Class name this parameter type is used in.
      *                           Necessary for relative `self` and `parent` type hints.
