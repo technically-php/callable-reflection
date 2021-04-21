@@ -10,7 +10,7 @@ describe('CallableReflection::apply()', function () {
             return 'hello';
         });
 
-        assert($reflection->apply() === 'hello');
+        assert($reflection->apply([]) === 'hello');
     });
 
     it('it should reflected callable with numeric arguments array', function () {
@@ -19,7 +19,7 @@ describe('CallableReflection::apply()', function () {
         });
 
         assert($reflection->apply(['Jordi']) === 'Hello, Jordi!');
-        assert($reflection->apply(['Spok', 'Live and prosper']) === 'Live and prosper, Spok!');
+        assert($reflection->apply(['Spock', 'Live and prosper']) === 'Live and prosper, Spock!');
     });
 
     it('it should reflected callable with named arguments array', function () {
@@ -28,7 +28,7 @@ describe('CallableReflection::apply()', function () {
         });
 
         assert($reflection->apply(['name' => 'Jordi']) === 'Hello, Jordi!');
-        assert($reflection->apply(['name' => 'Spok', 'greeting' => 'Live and prosper']) === 'Live and prosper, Spok!');
+        assert($reflection->apply(['name' => 'Spock', 'greeting' => 'Live and prosper']) === 'Live and prosper, Spock!');
     });
 
     it('it should reflected callable with mixed arguments array', function () {
@@ -37,7 +37,36 @@ describe('CallableReflection::apply()', function () {
         });
 
         assert($reflection->apply(['Jordi']) === 'Hello, Jordi!');
-        assert($reflection->apply(['Spok', 'greeting' => 'Live and prosper']) === 'Live and prosper, Spok!');
+        assert($reflection->apply(['Spock', 'greeting' => 'Live and prosper']) === 'Live and prosper, Spock!');
+    });
+
+    it('it should call reflected callable with variadic arguments', function () {
+        $reflection = CallableReflection::fromCallable(function (string $greeting = 'Hello', string ... $names) {
+            return $greeting . ($names ? ', ' . implode(', ', $names) : '') . '!';
+        });
+
+        assert($reflection->apply([]) === 'Hello!');
+        assert($reflection->apply(['Hello']) === 'Hello!');
+        assert($reflection->apply(['Live and prosper', 'Spock']) === 'Live and prosper, Spock!');
+        assert($reflection->apply(['Live and prosper', 'Captain', 'Spock']) === 'Live and prosper, Captain, Spock!');
+    });
+
+    it('it should call reflected callable with variadic arguments by passing named parameters', function () {
+        $reflection = CallableReflection::fromCallable(function (string $greeting = 'Hello', string ... $names) {
+            return $greeting . ($names ? ', ' . implode(', ', $names) : '') . '!';
+        });
+
+        assert($reflection->apply(['Salute', 'names' => ['Captain', 'Spock']]) === 'Salute, Captain, Spock!');
+    });
+
+    it('it should call reflected callable with variadic argument catching unknown named parameters', function () {
+        $reflection = CallableReflection::fromCallable(function (string $greeting = 'Hello', string ... $names) {
+            return $greeting . ($names ? ', ' . implode(', ', $names) : '') . '!';
+        });
+
+        assert(
+            $reflection->apply(['Salute', 'Picard' => 'Captain', 'officer' => 'Spock']) === 'Salute, Captain, Spock!'
+        );
     });
 
     it('it should throw ArgumentsCountError when too few arguments passed', function () {
@@ -53,7 +82,7 @@ describe('CallableReflection::apply()', function () {
 
         assert(isset($error));
         assert($error instanceof ArgumentCountError);
-        assert($error->getMessage() === "Too few arguments: argument #0 (`name`) is expected, but not passed.");
+        assert($error->getMessage() === "Too few arguments: Argument #1 (`name`) is not passed.");
     });
 
     it('it should throw ArgumentsCountError when unnecessary extra arguments passed', function () {
@@ -69,11 +98,10 @@ describe('CallableReflection::apply()', function () {
 
         assert(isset($error));
         assert($error instanceof ArgumentCountError);
-        assert($error->getMessage() ===
-            "Too many arguments: unused extra arguments passed: #3. This may be a mistake in your code.");
+        assert($error->getMessage() === "Too many arguments: unexpected extra argument passed: #2.");
     });
 
-    it('it should throw ArgumentsCountError when unnecessary extra named arguments passed', function () {
+    it('it should throw Error when unknown named argument passed', function () {
         $reflection = CallableReflection::fromCallable(function (string $name, string $greeting = 'Hello') {
             return "{$greeting}, {$name}!";
         });
@@ -85,8 +113,55 @@ describe('CallableReflection::apply()', function () {
         }
 
         assert(isset($error));
-        assert($error instanceof ArgumentCountError);
-        assert($error->getMessage() ===
-            "Too many arguments: unused extra arguments passed: `greeeeting`. This may be a mistake in your code.");
+        assert($error instanceof Error);
+        assert($error->getMessage() === 'Unknown named parameter `greeeeting`.');
+    });
+
+    it('it should throw Error when positional argument passed after named argument', function () {
+        $reflection = CallableReflection::fromCallable(function (string $name, string $greeting = 'Hello') {
+            return "{$greeting}, {$name}!";
+        });
+
+        try {
+            $reflection->apply(['greeting' => 'Wat?!', 'Jim']);
+        } catch (Throwable $error) {
+            // passthru
+        }
+
+        assert(isset($error));
+        assert($error instanceof Error);
+        assert($error->getMessage() === 'Cannot use positional argument after named argument.');
+    });
+
+    it('it should throw Error when named parameter overwrites previous positional argument value', function () {
+        $reflection = CallableReflection::fromCallable(function (string $name, string $greeting = 'Hello') {
+            return "{$greeting}, {$name}!";
+        });
+
+        try {
+            $reflection->apply(['Jim', 'name' => 'not Jim']);
+        } catch (Throwable $error) {
+            // passthru
+        }
+
+        assert(isset($error));
+        assert($error instanceof Error);
+        assert($error->getMessage() === 'Named parameter `name` overwrites positional argument.');
+    });
+
+    it('it should throw Error when there is named parameter for variadic argument and unknown named parameters', function () {
+        $reflection = CallableReflection::fromCallable(function (string $greeting = 'Hello', string ... $names) {
+            return $greeting . ($names ? ', ' . implode(', ', $names) : '') . '!';
+        });
+
+        try {
+            $reflection->apply(['Salute', 'names' => ['Spock'], 'officer' => 'Spock']);
+        } catch (Throwable $error) {
+            // passthru
+        }
+
+        assert(isset($error));
+        assert($error instanceof Error);
+        assert($error->getMessage() === 'Unknown named parameter `officer`.');
     });
 });

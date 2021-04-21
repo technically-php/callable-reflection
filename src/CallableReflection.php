@@ -6,6 +6,7 @@ namespace Technically\CallableReflection;
 
 use ArgumentCountError;
 use Closure;
+use Error;
 use InvalidArgumentException;
 use LogicException;
 use ReflectionClass;
@@ -45,11 +46,23 @@ final class CallableReflection
      */
     private $parameters;
 
+    /**
+     * @var array<string,ParameterReflection>
+     */
+    private $parametersMap;
+
+    /**
+     * @var ParameterReflection|null
+     */
+    private $variadic;
+
     private function __construct(callable $callable, ReflectionFunctionAbstract $reflector, int $type)
     {
         $this->reflector = $reflector;
         $this->callable = $callable;
-        $this->parameters = self::reflectParameters($this->reflector);
+        $this->parametersMap = self::reflectParameters($this->reflector);
+        $this->parameters = array_values($this->parametersMap);
+        $this->variadic = self::findVariadicParameter($this->parameters);
         $this->type = $type;
     }
 
@@ -129,6 +142,17 @@ final class CallableReflection
         return new self($constructor, $reflector, self::TYPE_CONSTRUCTOR);
     }
 
+    /**
+     * @param ParameterReflection[] $parameters
+     * @return ParameterReflection|null
+     */
+    private static function findVariadicParameter(array $parameters): ?ParameterReflection
+    {
+        $last = $parameters[count($parameters) - 1] ?? null;
+
+        return $last && $last->isVariadic() ? $last : null;
+    }
+
     public function getCallable(): callable
     {
         return $this->callable;
@@ -148,7 +172,7 @@ final class CallableReflection
      */
     public function call(...$arguments)
     {
-        return ($this->callable)(...$arguments);
+        return $this->apply($arguments);
     }
 
     /**
@@ -157,21 +181,17 @@ final class CallableReflection
      */
     public function __invoke(...$arguments)
     {
-        return ($this->callable)(...$arguments);
+        return $this->apply($arguments);
     }
 
     /**
-     * @param mixed ...$arguments
+     * @param array $arguments
      * @return mixed
      * @throws ArgumentCountError If too few or too many arguments passed to the callable.
      */
-    public function apply(array $arguments = [])
+    public function apply(array $arguments)
     {
         $values = $this->resolveArguments($this->getParameters(), $arguments);
-
-        if (count($arguments) > 0) {
-            $this->assertUnusedArguments($arguments);
-        }
 
         return ($this->callable)(...$values);
     }
@@ -216,20 +236,87 @@ final class CallableReflection
      * @param ParameterReflection[] $reflections
      * @param array<string|int,mixed> $arguments
      * @return array
-     * @throws ArgumentCountError
+     * @throws ArgumentCountError When too few or too many arguments passed.
+     * @throws Error When positional arguments passed after named arguments.
+     * @throws Error When named parameter overwrites previous positional argument value.
+     * @throws Error When unknown named parameter passed.
      */
-    private function resolveArguments(array $reflections, array &$arguments): array
+    private function resolveArguments(array $reflections, array $arguments): array
     {
-        $values = [];
-        foreach ($reflections as $i => $reflection) {
-            if (array_key_exists($i, $arguments)) {
-                $values[] = $arguments[$i];
-                unset($arguments[$i]);
+        /**
+         * Map holding parameter values by name.
+         * @var array<string,mixed>
+         */
+        $valuesMap = [];
+
+        /**
+         * An incremental index of the current parameter being used for positional arguments.
+         *
+         * This needed is to stay close to PHP8 named/positional arguments unpacking logic.
+         * @see https://wiki.php.net/rfc/named_params#variadic_functions_and_argument_unpacking
+         */
+        $positionalArgumentIndex = 0;
+
+        /**
+         * A flag to disallow positional arguments after the first named argument encountered.
+         *
+         * This needed is to stay close to PHP8 named/positional arguments unpacking logic.
+         * @see https://wiki.php.net/rfc/named_params#variadic_functions_and_argument_unpacking
+         */
+        $allowPositionalArguments = true;
+
+        foreach ($arguments as $i => $argument) {
+            if (is_int($i)) {
+                if (! $allowPositionalArguments) {
+                    throw new Error('Cannot use positional argument after named argument.');
+                }
+                if (! isset($this->parameters[$positionalArgumentIndex])) {
+                    throw new ArgumentCountError("Too many arguments: unexpected extra argument passed: #{$i}.");
+                }
+
+                $parameter = $this->parameters[$positionalArgumentIndex];
+
+                if ($parameter->isVariadic()) {
+                    $valuesMap[$parameter->getName()][] = $argument;
+                    continue;  // Continue without incrementing `$positionalArgumentIndex`.
+                }
+
+                $valuesMap[$parameter->getName()] = $argument;
+                $positionalArgumentIndex++;
+
                 continue;
             }
-            if (array_key_exists($reflection->getName(), $arguments)) {
-                $values[] = $arguments[$reflection->getName()];
-                unset($arguments[$reflection->getName()]);
+
+            if (is_string($i)) {
+                $allowPositionalArguments = false;
+
+                if (array_key_exists($i, $valuesMap)) {
+                    throw new Error("Named parameter `{$i}` overwrites positional argument.");
+                }
+
+                if (array_key_exists($i, $this->parametersMap)) {
+                    $valuesMap[$i] = $argument;
+                    continue;
+                }
+
+                if ($this->variadic && ! array_key_exists($this->variadic->getName(), $arguments)) {
+                    $valuesMap[$this->variadic->getName()][$i] = $argument;
+                    continue;
+                }
+
+                throw new Error("Unknown named parameter `{$i}`.");
+            }
+        }
+
+        $values = [];
+
+        foreach ($reflections as $i => $reflection) {
+            if ($reflection->isVariadic()) {
+                $values = array_merge($values, $valuesMap[$reflection->getName()] ?? []);
+                continue;
+            }
+            if (array_key_exists($reflection->getName(), $valuesMap)) {
+                $values[] = $valuesMap[$reflection->getName()];
                 continue;
             }
             if ($reflection->isOptional()) {
@@ -242,47 +329,25 @@ final class CallableReflection
             }
 
             throw new ArgumentCountError(
-                "Too few arguments: argument #{$i} (`{$reflection->getName()}`) is expected, but not passed."
+                sprintf("Too few arguments: Argument #%s (`%s`) is not passed.", $i + 1, $reflection->getName())
             );
         }
 
         return $values;
     }
 
+    /**
+     * @param ReflectionFunctionAbstract $reflector
+     * @return array<string,ParameterReflection>
+     */
     private static function reflectParameters(ReflectionFunctionAbstract $reflector): array
     {
         $parameters = [];
 
         foreach ($reflector->getParameters() as $parameter) {
-            $parameters[] = ParameterReflection::fromReflection($parameter);
+            $parameters[$parameter->getName()] = ParameterReflection::fromReflection($parameter);
         }
 
         return $parameters;
-    }
-
-    /**
-     * @param array $arguments
-     * @throws ArgumentCountError When arguments array is not empty (i.e. there are unused arguments).
-     */
-    private function assertUnusedArguments(array $arguments): void
-    {
-        if (count($arguments) === 0) {
-            return;
-        }
-
-        $keys = array_map(
-            function ($key): string {
-                if (is_int($key)) {
-                    return sprintf("#%s", $key + 1);
-                }
-
-                return sprintf("`%s`", $key);
-            },
-            array_keys($arguments)
-        );
-        throw new ArgumentCountError(sprintf(
-            "Too many arguments: unused extra arguments passed: %s. This may be a mistake in your code.",
-            implode(', ', $keys)
-        ));
     }
 }
