@@ -193,7 +193,7 @@ final class CallableReflection
      */
     public function apply(array $arguments)
     {
-        $values = $this->resolveArguments($this->getParameters(), $arguments);
+        $values = $this->resolveArguments($arguments);
 
         return ($this->callable)(...$values);
     }
@@ -235,7 +235,6 @@ final class CallableReflection
     }
 
     /**
-     * @param ParameterReflection[] $reflections
      * @param array<string|int,mixed> $arguments
      * @return array
      * @throws ArgumentCountError If too few or too many arguments passed.
@@ -243,32 +242,32 @@ final class CallableReflection
      * @throws Error If named parameter overwrites previous positional argument value.
      * @throws Error If unknown named parameter passed.
      */
-    private function resolveArguments(array $reflections, array $arguments): array
+    private function resolveArguments(array $arguments): array
     {
         $argumentsMap = self::combineNamedArgumentsMap($arguments);
 
         $values = [];
 
-        foreach ($reflections as $i => $reflection) {
-            if ($reflection->isVariadic()) {
-                $values = array_merge($values, $argumentsMap[$reflection->getName()] ?? []);
+        foreach ($this->parameters as $i => $parameter) {
+            if ($parameter->isVariadic()) {
+                $values = array_merge($values, $argumentsMap[$parameter->getName()] ?? []);
                 continue;
             }
-            if (array_key_exists($reflection->getName(), $argumentsMap)) {
-                $values[] = $argumentsMap[$reflection->getName()];
+            if (array_key_exists($parameter->getName(), $argumentsMap)) {
+                $values[] = $argumentsMap[$parameter->getName()];
                 continue;
             }
-            if ($reflection->isOptional()) {
-                $values[] = $reflection->getDefaultValue();
+            if ($parameter->isOptional()) {
+                $values[] = $parameter->getDefaultValue();
                 continue;
             }
-            if ($reflection->hasTypes() && $reflection->isNullable()) {
+            if ($parameter->hasTypes() && $parameter->isNullable()) {
                 $values[] = null;
                 continue;
             }
 
             throw new ArgumentCountError(
-                sprintf("Too few arguments: Argument #%s (`%s`) is not passed.", $i + 1, $reflection->getName())
+                sprintf("Too few arguments: Argument #%s (`%s`) is not passed.", $i + 1, $parameter->getName())
             );
         }
 
