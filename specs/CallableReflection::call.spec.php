@@ -30,10 +30,8 @@ describe('CallableReflection::call()', function () {
                 }
             );
 
-            /** @noinspection PhpLanguageLevelInspection */
-            assert($reflection->call(name: 'Jordi') === 'Hello, Jordi!');
-            /** @noinspection PhpLanguageLevelInspection */
-            assert($reflection->call(greeting: 'Whatsup') === 'Whatsup, dude!');
+            assert($reflection->call(...['name' => 'Jordi']) === 'Hello, Jordi!');
+            assert($reflection->call(...['greeting' => 'Whatsup']) === 'Whatsup, dude!');
         });
     }
 
