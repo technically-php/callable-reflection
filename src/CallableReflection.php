@@ -13,11 +13,8 @@ use ReflectionException;
 use ReflectionFunction;
 use ReflectionFunctionAbstract;
 use ReflectionMethod;
-use ReflectionNamedType;
-use ReflectionParameter;
 use RuntimeException;
 use Technically\CallableReflection\Parameters\ParameterReflection;
-use Technically\CallableReflection\Parameters\TypeReflection;
 
 final class CallableReflection
 {
@@ -257,54 +254,10 @@ final class CallableReflection
         $parameters = [];
 
         foreach ($reflector->getParameters() as $parameter) {
-            $className = $reflector instanceof ReflectionMethod ? $reflector->getDeclaringClass()->getName() : null;
-            $types = self::reflectParameterTypes($parameter, $className);
-
-            $isPromoted = PHP_VERSION_ID >= 80000 ? $parameter->isPromoted() : false;
-            $default = $parameter->isDefaultValueAvailable() ? $parameter->getDefaultValue() : (
-                $parameter->isVariadic() ? [] : null
-            );
-
-            $parameters[] = new ParameterReflection(
-                $parameter->getName(),
-                $types,
-                $parameter->isOptional(),
-                $parameter->allowsNull(),
-                $parameter->isVariadic(),
-                $isPromoted,
-                $default
-            );
+            $parameters[] = ParameterReflection::fromReflection($parameter);
         }
 
         return $parameters;
-    }
-
-    /**
-     * @param ReflectionParameter $parameter
-     * @param string|null $className
-     * @return TypeReflection[]
-     */
-    private static function reflectParameterTypes(ReflectionParameter $parameter, ?string $className): array
-    {
-        $type = $parameter->getType();
-
-        if ($type instanceof ReflectionNamedType) {
-            return [
-                new TypeReflection($type->getName(), $className),
-            ];
-        }
-
-        /** @noinspection PhpElementIsNotAvailableInCurrentPhpVersionInspection */
-        if (PHP_VERSION_ID >= 80000 && $type instanceof \ReflectionUnionType) {
-            return array_map(
-                function (ReflectionNamedType $type) use ($className) {
-                    return new TypeReflection($type->getName(), $className);
-                },
-                $type->getTypes()
-            );
-        }
-
-        return [];
     }
 
     /**
