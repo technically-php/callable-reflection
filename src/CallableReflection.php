@@ -77,7 +77,7 @@ final class CallableReflection
                 return new self($callable, new ReflectionFunction($callable), self::TYPE_FUNCTION);
             }
 
-            if (is_string($callable) && str_contains($callable, '::')) {
+            if (is_string($callable) && strpos($callable, '::') !== false) {
                 return new self($callable, new ReflectionMethod($callable), self::TYPE_STATIC_METHOD);
             }
 
