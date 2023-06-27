@@ -41,7 +41,7 @@ var_dump($reflection->isClosure()); // true
 
 [$p1, $p2] = $reflection->getParameters();
 
-var_dump($p2->getName()); // "factory"
+var_dump($p2->getName()); // "concrete"
 var_dump($p2->isNullable()); // true
 var_dump($p2->isOptional()); // false
 var_dump($p2->hasTypes()); // true
