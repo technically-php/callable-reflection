@@ -158,6 +158,43 @@ $service = $reflection->call(new NullLogger());
 assert($service instanceof MyService);
 ```
 
+## How is this better than reflecting `Closure::fromCallable()`
+
+This library's functionality is somewhat similar to what a reflection of the standard `Closure::fromCallable()` can provide. 
+And if that's sufficient for your use case, I recommend using the standard code.
+
+This library, however, does provide some added value on top:
+
+- It unifies interactions will all kinds of callables, including class constructors.
+  That was actually the primary use case I had in mind for it — building a DI service container.
+
+  For example, you cannot instantiate a new instance with Closure::fromCallable():
+
+  ```php
+  $reflection = new ReflectionFunction(Closure::fromCallable([MyRemoteService::class, '__construct']));
+  $service = $reflection->call($token); // (!) doesn't work
+  ```
+
+  but you can call a constructor with this library:
+
+  ```php
+  $reflection = CallableReflection::fromConstructor(MyRemoteService::class);
+  $service = $reflection->call($token);
+  ```
+
+- It can know and tell what type of callable was reflected, while with Closure::fromCallable() this information is lost.
+  This might be important for certain use cases, or not. Depending on the scenario.
+
+- It has nice additional convenience getters and checkers. Like `satisfies()`, `isOptional()`, `isNull()`, `isScalar()`, etc.
+
+- I also find the API somewhat more intuitive and convenient (which is, of course, subjective and debatable),
+  as the native Reflection API is slightly polluted as a result of BC-preserving additions
+
+- In terms of performance, I am sure this implementation will most definitely be slower than using the native code.
+  Though I didn't test it to provide the exact numbers. It's basically doing almost the same, but with extra code on top
+  — just operating on top of Reflections API.
+
+
 ## Changelog
 
 All notable changes to this project will be documented in the [CHANGELOG](./CHANGELOG.md) file.
