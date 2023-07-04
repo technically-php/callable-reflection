@@ -56,10 +56,10 @@ var_dump($t2->isScalar()); // true
 var_dump($t2->isClassName()); // false 
 var_dump($t2->getType()); // "string"
 
-var_dump($t2->isNull()); // true
-var_dump($t2->isScalar()); // false 
-var_dump($t2->isClassName()); // false 
-var_dump($t2->getType()); // "null" 
+var_dump($t3->isNull()); // true
+var_dump($t3->isScalar()); // false 
+var_dump($t3->isClassName()); // false 
+var_dump($t3->getType()); // "null" 
 ```
 
 ### Reflecting arbitrary class constructor
