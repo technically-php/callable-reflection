@@ -206,5 +206,5 @@ Implemented by :space_invader: [Ivan Voskoboinyk][3].
 
 [1]: https://www.php-fig.org/psr/psr-11/
 [2]: https://getcomposer.org/
-[3]: https://github.com/e1himself?utm_source=web&utm_medium=github&utm_campaign=technically/callable-reflection
+[3]: https://voskoboiniyk.com/
 [badge]: https://github.com/technically-php/callable-reflection/actions/workflows/test.yml/badge.svg
