@@ -10,8 +10,8 @@ It also lets you to easily invoke a callable with `call()` and `apply()` support
 
 - Unified and simplified interface to reflect callable parameters 
 - No dependencies
-- PHP 8.0 ready (supports union type hints; see examples below)
-- PHP 7.1+ compatible
+- Supports PHP 8.0, 8.1, 8.2, 8.3, 8.4 (supports union types, `mixed`, `false`, etc; see examples below)
+- PHP 7.1+ compatible &mdash; runs on as low as PHP 7.1
 - Semver
 - Tests
 
@@ -161,11 +161,11 @@ assert($service instanceof MyService);
 ## How is this better than reflecting `Closure::fromCallable()`
 
 This library's functionality is somewhat similar to what a reflection of the standard `Closure::fromCallable()` can provide. 
-And if that's sufficient for your use case, I recommend using the standard code.
+And if that's enough for your use case, you probably want to be using the standard reflection.
 
 This library, however, does provide some added value on top:
 
-- It unifies interactions will all kinds of callables, including class constructors.
+- It unifies interactions with all kinds of callables, including class constructors.
   That was actually the primary use case I had in mind for it — building a DI service container.
 
   For example, you cannot instantiate a new instance with Closure::fromCallable():
@@ -181,18 +181,19 @@ This library, however, does provide some added value on top:
   $reflection = CallableReflection::fromConstructor(MyRemoteService::class);
   $service = $reflection->call($token);
   ```
+  
+- It provides utilities to check if a specific value satisfies the given function argument type declaration (see `->satisfies()`). 
 
 - It can know and tell what type of callable was reflected, while with Closure::fromCallable() this information is lost.
-  This might be important for certain use cases, or not. Depending on the scenario.
+  This might be important for certain use cases.
 
 - It has nice additional convenience getters and checkers. Like `satisfies()`, `isOptional()`, `isNull()`, `isScalar()`, etc.
 
-- I also find the API somewhat more intuitive and convenient (which is, of course, subjective and debatable),
-  as the native Reflection API is slightly polluted as a result of BC-preserving additions
+- The API is more intuitive and straighforward and hides away PHP version differences introduced to the Reflections API
+  over years. The native Reflections API is polluted with BC-preserving constructs.
 
-- In terms of performance, I am sure this implementation will most definitely be slower than using the native code.
-  Though I didn't test it to provide the exact numbers. It's basically doing almost the same, but with extra code on top
-  — just operating on top of Reflections API.
+- The library is operating on top of the native Reflections API, and therefore is as performant as it is, plus a little
+  overhead for the convenience wrappers.
 
 
 ## Changelog
