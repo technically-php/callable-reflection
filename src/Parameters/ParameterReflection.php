@@ -216,8 +216,11 @@ final class ParameterReflection
         try {
             return $reflection->getDefaultValue();
         } catch (ReflectionException $exception) {
-            throw new LogicException('Failed to get parameter default value. This should never happen.',
-                $exception);
+            throw new LogicException(
+                'Failed to get parameter default value. This should never happen.',
+                0,
+                $exception
+            );
         }
     }
 
