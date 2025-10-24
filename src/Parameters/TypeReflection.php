@@ -27,7 +27,7 @@ final class TypeReflection
      * @param string|null $class Class name this parameter type is used in.
      *                           Necessary for relative `self` and `parent` type hints.
      */
-    public function __construct(string $type, string $class = null)
+    public function __construct(string $type, ?string $class = null)
     {
         if ($type === 'self' && empty($class)) {
             throw new InvalidArgumentException('Type `self` can only be used inside classes.');
