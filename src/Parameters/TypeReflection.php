@@ -166,39 +166,21 @@ final readonly class TypeReflection
      */
     public function satisfies(mixed $value): bool
     {
-        if ($this->isVoid()) {
-            return false;
-        }
-
-        if ($this->isMixed()) {
-            return true;
-        }
-
-        if ($this->isNull()) {
-            return is_null($value);
-        }
-
-        if ($this->isClassRequirement()) {
-            return is_object($value) && is_a($value, $this->getClassRequirement());
-        }
-
-        if ($this->isScalar()) {
-            return is_scalar($value) && match ($this->type) {
-                self::BOOL   => is_bool($value),
-                self::STRING => is_string($value),
-                self::INT    => is_int($value),
-                self::FLOAT  => is_int($value) || is_float($value),
-                self::FALSE  => $value === false,
-                self::TRUE   => $value === true,
-                default      => throw new LogicException(
-                    "Unexpected scenario. Scalar type `{$this->type}` is not properly handled.",
-                ),
-            };
-        }
-
-        return $this->isArray() && is_array($value)
-            || $this->isCallable() && is_callable($value)
-            || $this->isIterable() && is_iterable($value)
-            || $this->isObject() && is_object($value);
+        return match ($this->type) {
+            self::VOID     => false,
+            self::MIXED    => true,
+            self::NULL     => is_null($value),
+            self::BOOL     => is_bool($value),
+            self::STRING   => is_string($value),
+            self::INT      => is_int($value),
+            self::FLOAT    => is_int($value) || is_float($value),
+            self::FALSE    => $value === false,
+            self::TRUE     => $value === true,
+            self::ARRAY    => is_array($value),
+            self::CALLABLE => is_callable($value),
+            self::ITERABLE => is_iterable($value),
+            self::OBJECT   => is_object($value),
+            default        => is_object($value) && is_a($value, $this->getClassRequirement()), // FIXME: checks for interfaces
+        };
     }
 }
