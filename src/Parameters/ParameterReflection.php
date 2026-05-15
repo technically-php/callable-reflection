@@ -4,47 +4,34 @@ declare(strict_types=1);
 
 namespace Technically\CallableReflection\Parameters;
 
+use InvalidArgumentException;
 use LogicException;
 use ReflectionException;
 use ReflectionNamedType;
 use ReflectionParameter;
+use ReflectionUnionType;
 
-final class ParameterReflection
+final readonly class ParameterReflection
 {
-    /**
-     * @var string
-     */
-    private $name;
+    private string $name;
 
     /**
      * @var TypeReflection[]
      */
-    private $types;
+    private array $types;
 
-    /**
-     * @var bool
-     */
-    private $optional;
+    private bool $optional;
 
-    /**
-     * @var bool
-     */
-    private $nullable;
+    private bool $nullable;
 
-    /**
-     * @var bool
-     */
-    private $variadic;
+    private bool $variadic;
 
-    /**
-     * @var bool
-     */
-    private $promoted;
+    private bool $promoted;
 
     /**
      * @var mixed|null
      */
-    private $default;
+    private mixed $default;
 
     /**
      * @internal Please do not instantiate ParameterReflection instances directly.
@@ -65,12 +52,15 @@ final class ParameterReflection
         bool $nullable = false,
         bool $variadic = false,
         bool $promoted = false,
-        $default = null
+        mixed $default = null
     ) {
         $this->name = $name;
-        $this->types = (function (TypeReflection ...$types): array {
-            return $types;
-        })(...$types);
+        foreach ($types as $type) {
+            if (! $type instanceof TypeReflection) {
+                throw new InvalidArgumentException('Type must be an instance of TypeReflection');
+            }
+        }
+        $this->types = array_values($types);
         $this->optional = $optional;
         $this->nullable = $nullable;
         $this->variadic = $variadic;
@@ -78,10 +68,6 @@ final class ParameterReflection
         $this->default = $default;
     }
 
-    /**
-     * @param ReflectionParameter $reflection
-     * @return static
-     */
     public static function fromReflection(ReflectionParameter $reflection): self
     {
         $types = [];
@@ -97,40 +83,30 @@ final class ParameterReflection
                 ];
             }
 
-            /** @noinspection PhpElementIsNotAvailableInCurrentPhpVersionInspection */
-            if (PHP_VERSION_ID >= 80000 && $type instanceof \ReflectionUnionType) {
+            if ($type instanceof ReflectionUnionType) {
                 $types = array_map(
-                    function (ReflectionNamedType $type) use ($className) {
-                        return new TypeReflection($type->getName(), $className);
-                    },
-                    $type->getTypes()
+                    fn (ReflectionNamedType $type) => new TypeReflection($type->getName(), $className),
+                    $type->getTypes(),
                 );
             }
         }
 
-        /** @noinspection PhpElementIsNotAvailableInCurrentPhpVersionInspection */
         return new self(
             $reflection->getName(),
             $types,
             $reflection->isOptional(),
             $reflection->allowsNull(),
             $reflection->isVariadic(),
-            PHP_VERSION_ID >= 80000 && $reflection->isPromoted(),
-            self::analyzeDefaultValue($reflection)
+            $reflection->isPromoted(),
+            self::analyzeDefaultValue($reflection),
         );
     }
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @return bool
-     */
     public function hasTypes(): bool
     {
         return count($this->types) > 0;
@@ -144,53 +120,35 @@ final class ParameterReflection
         return $this->types;
     }
 
-    /**
-     * @return bool
-     */
     public function isNullable(): bool
     {
         return $this->nullable;
     }
 
-    /**
-     * @return bool
-     */
     public function isOptional(): bool
     {
         return $this->optional;
     }
 
-    /**
-     * @return bool
-     */
     public function isVariadic(): bool
     {
         return $this->variadic;
     }
 
-    /**
-     * @return bool
-     */
     public function isPromoted(): bool
     {
         return $this->promoted;
     }
 
-    /**
-     * @return mixed|null
-     */
-    public function getDefaultValue()
+    public function getDefaultValue(): mixed
     {
         return $this->default;
     }
 
     /**
      * Check if the given value satisfies the parameter type declarations.
-     *
-     * @param mixed $value
-     * @return bool
      */
-    public function satisfies($value): bool
+    public function satisfies(mixed $value): bool
     {
         if ($this->isVariadic()) {
             return $this->satisfiesVariadic($value);
@@ -199,11 +157,7 @@ final class ParameterReflection
         return $this->satisfiesSingular($value);
     }
 
-    /**
-     * @param ReflectionParameter $reflection
-     * @return mixed
-     */
-    private static function analyzeDefaultValue(ReflectionParameter $reflection)
+    private static function analyzeDefaultValue(ReflectionParameter $reflection): mixed
     {
         if ($reflection->isVariadic()) {
             return [];
@@ -224,7 +178,7 @@ final class ParameterReflection
         }
     }
 
-    private function satisfiesVariadic($value): bool
+    private function satisfiesVariadic(mixed $value): bool
     {
         if (! is_array($value)) {
             return false;
@@ -244,7 +198,7 @@ final class ParameterReflection
         return true;
     }
 
-    private function satisfiesSingular($value): bool
+    private function satisfiesSingular(mixed $value): bool
     {
         if (empty($this->types)) {
             // Parameters without type declarations allow everything (like `mixed`).
