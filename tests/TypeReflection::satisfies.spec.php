@@ -33,58 +33,56 @@ describe('TypeReflection::satisfies()', function () {
         expect($type->satisfies((object) []))->toBeFalse();
     });
 
-    if (PHP_VERSION_ID >= 80000) {
-        it('should check if a value satisfies `mixed` type declaration', function () use ($closure, $iterator) {
-            $type = new TypeReflection('mixed');
+    it('should check if a value satisfies `mixed` type declaration', function () use ($closure, $iterator) {
+        $type = new TypeReflection('mixed');
 
-            expect($type->satisfies(true))->toBeTrue();
-            expect($type->satisfies(false))->toBeTrue();
-            expect($type->satisfies(null))->toBeTrue();
-            expect($type->satisfies(''))->toBeTrue();
-            expect($type->satisfies('is_object'))->toBeTrue();
-            expect($type->satisfies([]))->toBeTrue();
-            expect($type->satisfies($closure))->toBeTrue();
-            expect($type->satisfies($iterator))->toBeTrue();
-            expect($type->satisfies(1))->toBeTrue();
-            expect($type->satisfies(1.0))->toBeTrue();
-            expect($type->satisfies(2.5))->toBeTrue();
-            expect($type->satisfies((object) []))->toBeTrue();
-        });
+        expect($type->satisfies(true))->toBeTrue();
+        expect($type->satisfies(false))->toBeTrue();
+        expect($type->satisfies(null))->toBeTrue();
+        expect($type->satisfies(''))->toBeTrue();
+        expect($type->satisfies('is_object'))->toBeTrue();
+        expect($type->satisfies([]))->toBeTrue();
+        expect($type->satisfies($closure))->toBeTrue();
+        expect($type->satisfies($iterator))->toBeTrue();
+        expect($type->satisfies(1))->toBeTrue();
+        expect($type->satisfies(1.0))->toBeTrue();
+        expect($type->satisfies(2.5))->toBeTrue();
+        expect($type->satisfies((object) []))->toBeTrue();
+    });
 
-        it('should check if a value satisfies `null` type declaration', function () use ($closure, $iterator) {
-            $type = new TypeReflection('null');
+    it('should check if a value satisfies `null` type declaration', function () use ($closure, $iterator) {
+        $type = new TypeReflection('null');
 
-            expect($type->satisfies(true))->toBeFalse();
-            expect($type->satisfies(false))->toBeFalse();
-            expect($type->satisfies(null))->toBeTrue();
-            expect($type->satisfies(''))->toBeFalse();
-            expect($type->satisfies('is_object'))->toBeFalse();
-            expect($type->satisfies([]))->toBeFalse();
-            expect($type->satisfies($closure))->toBeFalse();
-            expect($type->satisfies($iterator))->toBeFalse();
-            expect($type->satisfies(1))->toBeFalse();
-            expect($type->satisfies(1.0))->toBeFalse();
-            expect($type->satisfies(2.5))->toBeFalse();
-            expect($type->satisfies((object) []))->toBeFalse();
-        });
+        expect($type->satisfies(true))->toBeFalse();
+        expect($type->satisfies(false))->toBeFalse();
+        expect($type->satisfies(null))->toBeTrue();
+        expect($type->satisfies(''))->toBeFalse();
+        expect($type->satisfies('is_object'))->toBeFalse();
+        expect($type->satisfies([]))->toBeFalse();
+        expect($type->satisfies($closure))->toBeFalse();
+        expect($type->satisfies($iterator))->toBeFalse();
+        expect($type->satisfies(1))->toBeFalse();
+        expect($type->satisfies(1.0))->toBeFalse();
+        expect($type->satisfies(2.5))->toBeFalse();
+        expect($type->satisfies((object) []))->toBeFalse();
+    });
 
-        it('should check if a value satisfies `false` type declaration', function () use ($closure, $iterator) {
-            $type = new TypeReflection('false');
+    it('should check if a value satisfies `false` type declaration', function () use ($closure, $iterator) {
+        $type = new TypeReflection('false');
 
-            expect($type->satisfies(true))->toBeFalse();
-            expect($type->satisfies(false))->toBeTrue();
-            expect($type->satisfies(null))->toBeFalse();
-            expect($type->satisfies(''))->toBeFalse();
-            expect($type->satisfies('is_object'))->toBeFalse();
-            expect($type->satisfies([]))->toBeFalse();
-            expect($type->satisfies($closure))->toBeFalse();
-            expect($type->satisfies($iterator))->toBeFalse();
-            expect($type->satisfies(1))->toBeFalse();
-            expect($type->satisfies(1.0))->toBeFalse();
-            expect($type->satisfies(2.5))->toBeFalse();
-            expect($type->satisfies((object) []))->toBeFalse();
-        });
-    }
+        expect($type->satisfies(true))->toBeFalse();
+        expect($type->satisfies(false))->toBeTrue();
+        expect($type->satisfies(null))->toBeFalse();
+        expect($type->satisfies(''))->toBeFalse();
+        expect($type->satisfies('is_object'))->toBeFalse();
+        expect($type->satisfies([]))->toBeFalse();
+        expect($type->satisfies($closure))->toBeFalse();
+        expect($type->satisfies($iterator))->toBeFalse();
+        expect($type->satisfies(1))->toBeFalse();
+        expect($type->satisfies(1.0))->toBeFalse();
+        expect($type->satisfies(2.5))->toBeFalse();
+        expect($type->satisfies((object) []))->toBeFalse();
+    });
 
     it('should check if a value satisfies `bool` type declaration', function () use ($closure, $iterator) {
         $type = new TypeReflection('bool');
@@ -154,24 +152,22 @@ describe('TypeReflection::satisfies()', function () {
         expect($type->satisfies((object) []))->toBeFalse();
     });
 
-    if (PHP_VERSION_ID >= 70200) {
-        it('should check if a value satisfies `object` type declaration', function () use ($closure, $iterator) {
-            $type = new TypeReflection('object');
+    it('should check if a value satisfies `object` type declaration', function () use ($closure, $iterator) {
+        $type = new TypeReflection('object');
 
-            expect($type->satisfies(true))->toBeFalse();
-            expect($type->satisfies(false))->toBeFalse();
-            expect($type->satisfies(null))->toBeFalse();
-            expect($type->satisfies(''))->toBeFalse();
-            expect($type->satisfies('is_object'))->toBeFalse();
-            expect($type->satisfies([]))->toBeFalse();
-            expect($type->satisfies($closure))->toBeTrue();
-            expect($type->satisfies($iterator))->toBeTrue();
-            expect($type->satisfies(1))->toBeFalse();
-            expect($type->satisfies(1.0))->toBeFalse();
-            expect($type->satisfies(2.5))->toBeFalse();
-            expect($type->satisfies((object) []))->toBeTrue();
-        });
-    }
+        expect($type->satisfies(true))->toBeFalse();
+        expect($type->satisfies(false))->toBeFalse();
+        expect($type->satisfies(null))->toBeFalse();
+        expect($type->satisfies(''))->toBeFalse();
+        expect($type->satisfies('is_object'))->toBeFalse();
+        expect($type->satisfies([]))->toBeFalse();
+        expect($type->satisfies($closure))->toBeTrue();
+        expect($type->satisfies($iterator))->toBeTrue();
+        expect($type->satisfies(1))->toBeFalse();
+        expect($type->satisfies(1.0))->toBeFalse();
+        expect($type->satisfies(2.5))->toBeFalse();
+        expect($type->satisfies((object) []))->toBeTrue();
+    });
 
     it('should check if a value satisfies `iterable` type declaration', function () use ($closure, $iterator) {
         $type = new TypeReflection('iterable');

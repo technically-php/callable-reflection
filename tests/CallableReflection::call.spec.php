@@ -22,18 +22,16 @@ describe('CallableReflection::call()', function () {
         expect($reflection->call('Spok', 'Live and prosper'))->toBe('Live and prosper, Spok!');
     });
 
-    if (PHP_VERSION_ID >= 80000) {
-        it('it should call reflected callable with arguments passing named arguments', function () {
-            $reflection = CallableReflection::fromCallable(
-                function (string $name = 'dude', string $greeting = 'Hello') {
-                    return "{$greeting}, {$name}!";
-                }
-            );
+    it('it should call reflected callable with arguments passing named arguments', function () {
+        $reflection = CallableReflection::fromCallable(
+            function (string $name = 'dude', string $greeting = 'Hello') {
+                return "{$greeting}, {$name}!";
+            }
+        );
 
-            expect($reflection->call(...['name' => 'Jordi']))->toBe('Hello, Jordi!');
-            expect($reflection->call(...['greeting' => 'Whatsup']))->toBe('Whatsup, dude!');
-        });
-    }
+        expect($reflection->call(...['name' => 'Jordi']))->toBe('Hello, Jordi!');
+        expect($reflection->call(...['greeting' => 'Whatsup']))->toBe('Whatsup, dude!');
+    });
 
     it('it should call reflected callable with variadic arguments', function () {
         $reflection = CallableReflection::fromCallable(function (string $greeting = 'Hello', string ... $names) {
@@ -46,23 +44,21 @@ describe('CallableReflection::call()', function () {
         expect($reflection->call('Live and prosper', 'Captain', 'Spok'))->toBe('Live and prosper, Captain, Spok!');
     });
 
-    if (PHP_VERSION_ID >= 80000) {
-        it('it should call reflected callable with variadic arguments passing named arguments', function () {
-            $reflection = CallableReflection::fromCallable(function (string $greeting = 'Hello', string ...$names) {
-                return $greeting . ($names ? ', ' . implode(', ', $names) : '') . '!';
-            });
-
-            expect($reflection->call(...['greeting' => 'Hello']))->toBe('Hello!');
-            expect($reflection->call(...['names' =>['Spok', 'Captain']]))->toBe('Hello, Spok, Captain!');
+    it('it should call reflected callable with variadic arguments passing named arguments', function () {
+        $reflection = CallableReflection::fromCallable(function (string $greeting = 'Hello', string ...$names) {
+            return $greeting . ($names ? ', ' . implode(', ', $names) : '') . '!';
         });
 
-        it('it should call reflected callable with variadic arguments passing extra named arguments', function () {
-            $reflection = CallableReflection::fromCallable(function (string $greeting = 'Hello', string ...$names) {
-                return $greeting . ($names ? ', ' . implode(', ', $names) : '') . '!';
-            });
+        expect($reflection->call(...['greeting' => 'Hello']))->toBe('Hello!');
+        expect($reflection->call(...['names' =>['Spok', 'Captain']]))->toBe('Hello, Spok, Captain!');
+    });
 
-            expect($reflection->call(...['greeting' => 'Hello']))->toBe('Hello!');
-            expect($reflection->call(...['officer' => 'Spok', 'captain' => 'Picard']))->toBe('Hello, Spok, Picard!');
+    it('it should call reflected callable with variadic arguments passing extra named arguments', function () {
+        $reflection = CallableReflection::fromCallable(function (string $greeting = 'Hello', string ...$names) {
+            return $greeting . ($names ? ', ' . implode(', ', $names) : '') . '!';
         });
-    }
+
+        expect($reflection->call(...['greeting' => 'Hello']))->toBe('Hello!');
+        expect($reflection->call(...['officer' => 'Spok', 'captain' => 'Picard']))->toBe('Hello, Spok, Picard!');
+    });
 });

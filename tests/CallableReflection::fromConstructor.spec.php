@@ -98,34 +98,32 @@ describe('CallableReflection::fromConstructor', function () {
         expect($instance->previous)->toBe($exception);
     });
 
-    if (PHP_VERSION_ID >= 80000) {
-        it('should reflect constructors with promoted properties', function () {
-            $reflection = CallableReflection::fromConstructor(MyClassWithConstructorPropertiesPromotion::class);
+    it('should reflect constructors with promoted properties', function () {
+        $reflection = CallableReflection::fromConstructor(MyClassWithConstructorPropertiesPromotion::class);
 
-            expect($reflection->isConstructor())->toBeTrue();
-            expect(count($reflection->getParameters()))->toBe(2);
+        expect($reflection->isConstructor())->toBeTrue();
+        expect(count($reflection->getParameters()))->toBe(2);
 
-            [$name, $code] = $reflection->getParameters();
+        [$name, $code] = $reflection->getParameters();
 
-            expect($name->getName())->toBe('name');
-            expect($name->isOptional())->toBeFalse();
-            expect($name->isPromoted())->toBeTrue();
-            expect($name->getTypes())->toEqual([
-                new TypeReflection('string', MyClassWithConstructorPropertiesPromotion::class),
-            ]);
+        expect($name->getName())->toBe('name');
+        expect($name->isOptional())->toBeFalse();
+        expect($name->isPromoted())->toBeTrue();
+        expect($name->getTypes())->toEqual([
+            new TypeReflection('string', MyClassWithConstructorPropertiesPromotion::class),
+        ]);
 
-            expect($code->getName())->toBe('code');
-            expect($name->isOptional())->toBeFalse();
-            expect($name->isPromoted())->toBeTrue();
-            expect($code->getTypes())->toEqual([
-                new TypeReflection('int', MyClassWithConstructorPropertiesPromotion::class),
-            ]);
+        expect($code->getName())->toBe('code');
+        expect($name->isOptional())->toBeFalse();
+        expect($name->isPromoted())->toBeTrue();
+        expect($code->getTypes())->toEqual([
+            new TypeReflection('int', MyClassWithConstructorPropertiesPromotion::class),
+        ]);
 
-            $instance = $reflection->call('Tommy', 7);
+        $instance = $reflection->call('Tommy', 7);
 
-            expect($instance)->toBeInstanceOf(MyClassWithConstructorPropertiesPromotion::class);
-            expect($instance->name)->toBe('Tommy');
-            expect($instance->code)->toBe(7);
-        });
-    }
+        expect($instance)->toBeInstanceOf(MyClassWithConstructorPropertiesPromotion::class);
+        expect($instance->name)->toBe('Tommy');
+        expect($instance->code)->toBe(7);
+    });
 });
