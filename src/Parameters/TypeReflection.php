@@ -180,7 +180,7 @@ final readonly class TypeReflection
             self::CALLABLE => is_callable($value),
             self::ITERABLE => is_iterable($value),
             self::OBJECT   => is_object($value),
-            default        => is_object($value) && is_a($value, $this->getClassRequirement()), // FIXME: checks for interfaces
+            default        => is_object($value) && is_a($value, $this->getClassRequirement()),
         };
     }
 }

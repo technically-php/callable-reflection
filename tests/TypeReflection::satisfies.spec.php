@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 use Technically\CallableReflection\Parameters\TypeReflection;
+use Technically\CallableReflection\Tests\Fixtures\MyAnotherEnum;
 use Technically\CallableReflection\Tests\Fixtures\MyClass;
+use Technically\CallableReflection\Tests\Fixtures\MyEnum;
 use Technically\CallableReflection\Tests\Fixtures\MyExtendedClass;
 use Technically\CallableReflection\Tests\Fixtures\MyInstanceMethodCallable;
 use Technically\CallableReflection\Tests\Fixtures\MyInterface;
@@ -266,6 +268,55 @@ describe('TypeReflection::satisfies()', function () {
         expect($type->satisfies((object) []))->toBeFalse();
         expect($type->satisfies($instance))->toBeTrue();
         expect($type->satisfies($another))->toBeFalse();
+    });
+
+    it('should check if a value satisfies interface type declaration', function () use ($closure, $iterator) {
+        $type = new TypeReflection(Stringable::class);
+
+        $instance = new class implements Stringable {
+            public function __toString()
+            {
+                return 'MyLocalClass';
+            }
+        };
+
+        $another = new class {};
+
+        expect($type->satisfies(true))->toBeFalse();
+        expect($type->satisfies(false))->toBeFalse();
+        expect($type->satisfies(null))->toBeFalse();
+        expect($type->satisfies(''))->toBeFalse();
+        expect($type->satisfies('is_object'))->toBeFalse();
+        expect($type->satisfies(MyInterface::class))->toBeFalse();
+        expect($type->satisfies([]))->toBeFalse();
+        expect($type->satisfies($closure))->toBeFalse();
+        expect($type->satisfies($iterator))->toBeFalse();
+        expect($type->satisfies(1))->toBeFalse();
+        expect($type->satisfies(1.0))->toBeFalse();
+        expect($type->satisfies(2.5))->toBeFalse();
+        expect($type->satisfies((object) []))->toBeFalse();
+        expect($type->satisfies($instance))->toBeTrue();
+        expect($type->satisfies($another))->toBeFalse();
+    });
+
+    it('should check if a value satisfies enum type declaration', function () use ($closure, $iterator) {
+        $type = new TypeReflection(MyEnum::class);
+
+        expect($type->satisfies(true))->toBeFalse();
+        expect($type->satisfies(false))->toBeFalse();
+        expect($type->satisfies(null))->toBeFalse();
+        expect($type->satisfies(''))->toBeFalse();
+        expect($type->satisfies('is_object'))->toBeFalse();
+        expect($type->satisfies(MyInterface::class))->toBeFalse();
+        expect($type->satisfies([]))->toBeFalse();
+        expect($type->satisfies($closure))->toBeFalse();
+        expect($type->satisfies($iterator))->toBeFalse();
+        expect($type->satisfies(1))->toBeFalse();
+        expect($type->satisfies(1.0))->toBeFalse();
+        expect($type->satisfies(2.5))->toBeFalse();
+        expect($type->satisfies((object) []))->toBeFalse();
+        expect($type->satisfies(MyEnum::UNO))->toBeTrue();
+        expect($type->satisfies(MyAnotherEnum::ONE))->toBeFalse();
     });
 
     it('should check if a value satisfies `self` type declaration', function () use ($closure, $iterator) {
