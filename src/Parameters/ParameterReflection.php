@@ -167,15 +167,7 @@ final readonly class ParameterReflection
             return null;
         }
 
-        try {
-            return $reflection->getDefaultValue();
-        } catch (ReflectionException $exception) {
-            throw new LogicException(
-                'Failed to get parameter default value. This should never happen.',
-                0,
-                $exception
-            );
-        }
+        return $reflection->getDefaultValue();
     }
 
     private function satisfiesVariadic(mixed $value): bool
