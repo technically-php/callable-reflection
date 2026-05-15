@@ -138,7 +138,15 @@ describe('CallableReflection::getParameters()', function () {
         expect($self->getDefaultValue())->toBeNull();
         expect($self->hasTypes())->toBeTrue();
         expect($self->getTypes())->toEqual([
-            new TypeReflection(MySelfDependencyCallable::class, MySelfDependencyCallable::class),
+            new TypeReflection(
+                /**
+                 * Since PHP 8.5 `self` type hint is resolved to the actual class name at compile time.
+                 * So the Reflection API cannot tell if it was `self` or the actual class name in the source code.
+                 * @see https://github.com/php/php-src/issues/21284
+                 */
+                PHP_VERSION_ID > 80500 ? MySelfDependencyCallable::class : 'self',
+                MySelfDependencyCallable::class,
+            ),
         ]);
     });
 
@@ -160,7 +168,15 @@ describe('CallableReflection::getParameters()', function () {
         expect($self->getDefaultValue())->toBeNull();
         expect($self->hasTypes())->toBeTrue();
         expect($self->getTypes())->toEqual([
-            new TypeReflection(MyParentDependencyCallable::class, MyParentDependencyCallable::class),
+            new TypeReflection(
+                /**
+                 * Since PHP 8.5 `self` type hint is resolved to the actual class name at compile time.
+                 * So the Reflection API cannot tell if it was `self` or the actual class name in the source code.
+                 * @see https://github.com/php/php-src/issues/21284
+                 */
+                PHP_VERSION_ID > 80500 ? MyParentDependencyCallable::class : 'self',
+                MyParentDependencyCallable::class,
+            ),
         ]);
 
         expect($parent->getName())->toBe('parent');
@@ -170,7 +186,15 @@ describe('CallableReflection::getParameters()', function () {
         expect($parent->getDefaultValue())->toBeNull();
         expect($parent->hasTypes())->toBeTrue();
         expect($parent->getTypes())->toEqual([
-            new TypeReflection(MyInstanceMethodCallable::class, MyParentDependencyCallable::class),
+            new TypeReflection(
+                /**
+                 * Since PHP 8.5 `parent` type hint is resolved to the actual class name at compile time.
+                 * So the Reflection API cannot tell if it was `parent` or the actual class name in the source code.
+                 * @see https://github.com/php/php-src/issues/21284
+                 */
+                PHP_VERSION_ID > 80500 ? MyInstanceMethodCallable::class : 'parent',
+                MyParentDependencyCallable::class,
+            ),
         ]);
     });
 
