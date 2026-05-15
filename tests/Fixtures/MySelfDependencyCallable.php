@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Technically\CallableReflection\Specs\Fixtures;
+namespace Technically\CallableReflection\Tests\Fixtures;
 
 final class MySelfDependencyCallable
 {
-    public function __invoke(self $self = null)
+    public function __invoke(?self $self = null)
     {
         return $self;
     }

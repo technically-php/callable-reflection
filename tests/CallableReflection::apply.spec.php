@@ -10,7 +10,7 @@ describe('CallableReflection::apply()', function () {
             return 'hello';
         });
 
-        assert($reflection->apply([]) === 'hello');
+        expect($reflection->apply([]))->toBe('hello');
     });
 
     it('it should reflected callable with numeric arguments array', function () {
@@ -18,8 +18,8 @@ describe('CallableReflection::apply()', function () {
             return "{$greeting}, {$name}!";
         });
 
-        assert($reflection->apply(['Jordi']) === 'Hello, Jordi!');
-        assert($reflection->apply(['Spock', 'Live and prosper']) === 'Live and prosper, Spock!');
+        expect($reflection->apply(['Jordi']))->toBe('Hello, Jordi!');
+        expect($reflection->apply(['Spock', 'Live and prosper']))->toBe('Live and prosper, Spock!');
     });
 
     it('it should reflected callable with named arguments array', function () {
@@ -27,8 +27,8 @@ describe('CallableReflection::apply()', function () {
             return "{$greeting}, {$name}!";
         });
 
-        assert($reflection->apply(['name' => 'Jordi']) === 'Hello, Jordi!');
-        assert($reflection->apply(['name' => 'Spock', 'greeting' => 'Live and prosper']) === 'Live and prosper, Spock!');
+        expect($reflection->apply(['name' => 'Jordi']))->toBe('Hello, Jordi!');
+        expect($reflection->apply(['name' => 'Spock', 'greeting' => 'Live and prosper']))->toBe('Live and prosper, Spock!');
     });
 
     it('it should reflected callable with mixed arguments array', function () {
@@ -36,8 +36,8 @@ describe('CallableReflection::apply()', function () {
             return "{$greeting}, {$name}!";
         });
 
-        assert($reflection->apply(['Jordi']) === 'Hello, Jordi!');
-        assert($reflection->apply(['Spock', 'greeting' => 'Live and prosper']) === 'Live and prosper, Spock!');
+        expect($reflection->apply(['Jordi']))->toBe('Hello, Jordi!');
+        expect($reflection->apply(['Spock', 'greeting' => 'Live and prosper']))->toBe('Live and prosper, Spock!');
     });
 
     it('it should call reflected callable with variadic arguments', function () {
@@ -45,10 +45,10 @@ describe('CallableReflection::apply()', function () {
             return $greeting . ($names ? ', ' . implode(', ', $names) : '') . '!';
         });
 
-        assert($reflection->apply([]) === 'Hello!');
-        assert($reflection->apply(['Hello']) === 'Hello!');
-        assert($reflection->apply(['Live and prosper', 'Spock']) === 'Live and prosper, Spock!');
-        assert($reflection->apply(['Live and prosper', 'Captain', 'Spock']) === 'Live and prosper, Captain, Spock!');
+        expect($reflection->apply([]))->toBe('Hello!');
+        expect($reflection->apply(['Hello']))->toBe('Hello!');
+        expect($reflection->apply(['Live and prosper', 'Spock']))->toBe('Live and prosper, Spock!');
+        expect($reflection->apply(['Live and prosper', 'Captain', 'Spock']))->toBe('Live and prosper, Captain, Spock!');
     });
 
     it('it should call reflected callable with variadic arguments by passing named parameters', function () {
@@ -56,7 +56,7 @@ describe('CallableReflection::apply()', function () {
             return $greeting . ($names ? ', ' . implode(', ', $names) : '') . '!';
         });
 
-        assert($reflection->apply(['Salute', 'names' => ['Captain', 'Spock']]) === 'Salute, Captain, Spock!');
+        expect($reflection->apply(['Salute', 'names' => ['Captain', 'Spock']]))->toBe('Salute, Captain, Spock!');
     });
 
     it('it should call reflected callable with variadic argument catching unknown named parameters', function () {
@@ -64,9 +64,7 @@ describe('CallableReflection::apply()', function () {
             return $greeting . ($names ? ', ' . implode(', ', $names) : '') . '!';
         });
 
-        assert(
-            $reflection->apply(['Salute', 'Picard' => 'Captain', 'officer' => 'Spock']) === 'Salute, Captain, Spock!'
-        );
+        expect($reflection->apply(['Salute', 'Picard' => 'Captain', 'officer' => 'Spock']))->toBe('Salute, Captain, Spock!');
     });
 
     it('it should throw ArgumentsCountError when too few arguments passed', function () {
@@ -80,9 +78,9 @@ describe('CallableReflection::apply()', function () {
             // passthru
         }
 
-        assert(isset($error));
-        assert($error instanceof ArgumentCountError);
-        assert($error->getMessage() === "Too few arguments: Argument #1 (`name`) is not passed.");
+        expect(isset($error))->toBeTrue();
+        expect($error)->toBeInstanceOf(ArgumentCountError::class);
+        expect($error->getMessage())->toBe("Too few arguments: Argument #1 (`name`) is not passed.");
     });
 
     it('it should throw ArgumentsCountError when unnecessary extra arguments passed', function () {
@@ -96,9 +94,9 @@ describe('CallableReflection::apply()', function () {
             // passthru
         }
 
-        assert(isset($error));
-        assert($error instanceof ArgumentCountError);
-        assert($error->getMessage() === "Too many arguments: unexpected extra argument passed: #2.");
+        expect(isset($error))->toBeTrue();
+        expect($error)->toBeInstanceOf(ArgumentCountError::class);
+        expect($error->getMessage())->toBe("Too many arguments: unexpected extra argument passed: #2.");
     });
 
     it('it should throw Error when unknown named argument passed', function () {
@@ -112,9 +110,9 @@ describe('CallableReflection::apply()', function () {
             // passthru
         }
 
-        assert(isset($error));
-        assert($error instanceof Error);
-        assert($error->getMessage() === 'Unknown named parameter `greeeeting`.');
+        expect(isset($error))->toBeTrue();
+        expect($error)->toBeInstanceOf(Error::class);
+        expect($error->getMessage())->toBe('Unknown named parameter `greeeeting`.');
     });
 
     it('it should throw Error when positional argument passed after named argument', function () {
@@ -128,9 +126,9 @@ describe('CallableReflection::apply()', function () {
             // passthru
         }
 
-        assert(isset($error));
-        assert($error instanceof Error);
-        assert($error->getMessage() === 'Cannot use positional argument after named argument.');
+        expect(isset($error))->toBeTrue();
+        expect($error)->toBeInstanceOf(Error::class);
+        expect($error->getMessage())->toBe('Cannot use positional argument after named argument.');
     });
 
     it('it should throw Error when named parameter overwrites previous positional argument value', function () {
@@ -144,9 +142,9 @@ describe('CallableReflection::apply()', function () {
             // passthru
         }
 
-        assert(isset($error));
-        assert($error instanceof Error);
-        assert($error->getMessage() === 'Named parameter `name` overwrites positional argument.');
+        expect(isset($error))->toBeTrue();
+        expect($error)->toBeInstanceOf(Error::class);
+        expect($error->getMessage())->toBe('Named parameter `name` overwrites positional argument.');
     });
 
     it('it should throw Error when there is named parameter for variadic argument and unknown named parameters', function () {
@@ -160,8 +158,8 @@ describe('CallableReflection::apply()', function () {
             // passthru
         }
 
-        assert(isset($error));
-        assert($error instanceof Error);
-        assert($error->getMessage() === 'Unknown named parameter `officer`.');
+        expect(isset($error))->toBeTrue();
+        expect($error)->toBeInstanceOf(Error::class);
+        expect($error->getMessage())->toBe('Unknown named parameter `officer`.');
     });
 });

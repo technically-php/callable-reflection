@@ -10,7 +10,7 @@ describe('CallableReflection::call()', function () {
             return 'hello';
         });
 
-        assert($reflection->call() === 'hello');
+        expect($reflection->call())->toBe('hello');
     });
 
     it('it should call reflected callable with arguments', function () {
@@ -18,8 +18,8 @@ describe('CallableReflection::call()', function () {
             return "{$greeting}, {$name}!";
         });
 
-        assert($reflection->call('Jordi') === 'Hello, Jordi!');
-        assert($reflection->call('Spok', 'Live and prosper') === 'Live and prosper, Spok!');
+        expect($reflection->call('Jordi'))->toBe('Hello, Jordi!');
+        expect($reflection->call('Spok', 'Live and prosper'))->toBe('Live and prosper, Spok!');
     });
 
     if (PHP_VERSION_ID >= 80000) {
@@ -30,8 +30,8 @@ describe('CallableReflection::call()', function () {
                 }
             );
 
-            assert($reflection->call(...['name' => 'Jordi']) === 'Hello, Jordi!');
-            assert($reflection->call(...['greeting' => 'Whatsup']) === 'Whatsup, dude!');
+            expect($reflection->call(...['name' => 'Jordi']))->toBe('Hello, Jordi!');
+            expect($reflection->call(...['greeting' => 'Whatsup']))->toBe('Whatsup, dude!');
         });
     }
 
@@ -40,10 +40,10 @@ describe('CallableReflection::call()', function () {
             return $greeting . ($names ? ', ' . implode(', ', $names) : '') . '!';
         });
 
-        assert($reflection->call() === 'Hello!');
-        assert($reflection->call('Hello') === 'Hello!');
-        assert($reflection->call('Live and prosper', 'Spok') === 'Live and prosper, Spok!');
-        assert($reflection->call('Live and prosper', 'Captain', 'Spok') === 'Live and prosper, Captain, Spok!');
+        expect($reflection->call())->toBe('Hello!');
+        expect($reflection->call('Hello'))->toBe('Hello!');
+        expect($reflection->call('Live and prosper', 'Spok'))->toBe('Live and prosper, Spok!');
+        expect($reflection->call('Live and prosper', 'Captain', 'Spok'))->toBe('Live and prosper, Captain, Spok!');
     });
 
     if (PHP_VERSION_ID >= 80000) {
@@ -52,8 +52,8 @@ describe('CallableReflection::call()', function () {
                 return $greeting . ($names ? ', ' . implode(', ', $names) : '') . '!';
             });
 
-            assert($reflection->call(...['greeting' => 'Hello']) === 'Hello!');
-            assert($reflection->call(...['names' =>['Spok', 'Captain']]) === 'Hello, Spok, Captain!');
+            expect($reflection->call(...['greeting' => 'Hello']))->toBe('Hello!');
+            expect($reflection->call(...['names' =>['Spok', 'Captain']]))->toBe('Hello, Spok, Captain!');
         });
 
         it('it should call reflected callable with variadic arguments passing extra named arguments', function () {
@@ -61,8 +61,8 @@ describe('CallableReflection::call()', function () {
                 return $greeting . ($names ? ', ' . implode(', ', $names) : '') . '!';
             });
 
-            assert($reflection->call(...['greeting' => 'Hello']) === 'Hello!');
-            assert($reflection->call(...['officer' => 'Spok', 'captain' => 'Picard']) === 'Hello, Spok, Picard!');
+            expect($reflection->call(...['greeting' => 'Hello']))->toBe('Hello!');
+            expect($reflection->call(...['officer' => 'Spok', 'captain' => 'Picard']))->toBe('Hello, Spok, Picard!');
         });
     }
 });
