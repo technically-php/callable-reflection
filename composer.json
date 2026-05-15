@@ -11,13 +11,16 @@
     ],
     "minimum-stability": "stable",
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
     },
     "require": {
-        "php": "^7.1|^8.0"
+        "php": "^8.2"
     },
     "require-dev": {
-        "peridot-php/peridot": "^1.19"
+        "pestphp/pest": "^2.0 || ^3.0 || ^4.0"
     },
     "autoload": {
         "psr-4": {
@@ -26,10 +29,10 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Technically\\CallableReflection\\Specs\\": "specs/"
+            "Technically\\CallableReflection\\Tests\\": "tests/"
         }
     },
     "scripts": {
-        "test": "php -d zend.assertions=1 -d assert.exception=1 vendor/bin/peridot ./specs"
+        "test": "php vendor/bin/pest"
     }
 }

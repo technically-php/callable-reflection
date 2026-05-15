@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Technically\CallableReflection\Specs\Fixtures;
+namespace Technically\CallableReflection\Tests\Fixtures;
 
 interface MyInterface
 {

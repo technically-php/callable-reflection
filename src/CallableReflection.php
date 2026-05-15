@@ -26,15 +26,9 @@ final class CallableReflection
     private const TYPE_INVOKABLE_OBJECT = 5;
     private const TYPE_CONSTRUCTOR = 6;
 
-    /**
-     * @var ReflectionFunction|ReflectionMethod
-     */
-    private $reflector;
+    private readonly ReflectionFunction | ReflectionMethod $reflector;
 
-    /**
-     * @var int
-     */
-    private $type;
+    private readonly int $type;
 
     /**
      * @var callable
@@ -44,19 +38,16 @@ final class CallableReflection
     /**
      * @var ParameterReflection[]
      */
-    private $parameters;
+    private readonly array $parameters;
 
     /**
      * @var array<string,ParameterReflection>
      */
-    private $parametersMap;
+    private readonly array $parametersMap;
 
-    /**
-     * @var ParameterReflection|null
-     */
-    private $variadic;
+    private readonly ParameterReflection | null $variadic;
 
-    private function __construct(callable $callable, ReflectionFunctionAbstract $reflector, int $type)
+    private function __construct(callable $callable, ReflectionMethod | ReflectionFunction $reflector, int $type)
     {
         $this->reflector = $reflector;
         $this->callable = $callable;
@@ -78,7 +69,8 @@ final class CallableReflection
             }
 
             if (is_string($callable) && strpos($callable, '::') !== false) {
-                return new self($callable, new ReflectionMethod($callable), self::TYPE_STATIC_METHOD);
+                [$class, $method] = explode('::', $callable, 2);
+                return new self($callable, new ReflectionMethod($class, $method), self::TYPE_STATIC_METHOD);
             }
 
             if (is_object($callable) && method_exists($callable, '__invoke')) {
@@ -95,17 +87,16 @@ final class CallableReflection
                 return new self($callable, $reflector, self::TYPE_INSTANCE_METHOD);
             }
         } catch (ReflectionException $exception) {
-            $type = is_object($callable) ? get_class($callable) : gettype($callable);
+            $type = get_debug_type($callable);
             throw new RuntimeException("Failed reflecting the given callable: `{$type}`.", 0, $exception);
         }
 
-        $type = is_object($callable) ? get_class($callable) : gettype($callable);
+        $type = get_debug_type($callable);
         throw new InvalidArgumentException("Cannot reflect the given callable: `{$type}`.");
     }
 
     /**
-     * @param string $className
-     * @return static
+     * @param class-string $className
      * @throws InvalidArgumentException If the given class does not exist.
      *                                  Or if the class cannot be instantiated.
      */
@@ -156,42 +147,34 @@ final class CallableReflection
     }
 
     /**
-     * @param mixed ...$arguments
-     * @return mixed
-     *
      * @throws ArgumentCountError If too few or too many arguments passed.
      * @throws Error If positional arguments passed after named arguments.
      * @throws Error If named parameter overwrites previous positional argument value.
      * @throws Error If unknown named parameter passed.
      */
-    public function call(...$arguments)
+    public function call(mixed ...$arguments): mixed
     {
         return $this->apply($arguments);
     }
 
     /**
-     * @param mixed ...$arguments
-     * @return mixed
-     *
      * @throws ArgumentCountError If too few or too many arguments passed.
      * @throws Error If positional arguments passed after named arguments.
      * @throws Error If named parameter overwrites previous positional argument value.
      * @throws Error If unknown named parameter passed.
      */
-    public function __invoke(...$arguments)
+    public function __invoke(mixed ...$arguments): mixed
     {
         return $this->apply($arguments);
     }
 
     /**
-     * @param array $arguments
-     * @return mixed
      * @throws ArgumentCountError If too few or too many arguments passed.
      * @throws Error If positional arguments passed after named arguments.
      * @throws Error If named parameter overwrites previous positional argument value.
      * @throws Error If unknown named parameter passed.
      */
-    public function apply(array $arguments)
+    public function apply(array $arguments): mixed
     {
         $values = $this->resolveArguments($arguments);
 
@@ -237,6 +220,7 @@ final class CallableReflection
     /**
      * @param array<string|int,mixed> $arguments
      * @return array
+     *
      * @throws ArgumentCountError If too few or too many arguments passed.
      * @throws Error If positional arguments passed after named arguments.
      * @throws Error If named parameter overwrites previous positional argument value.
@@ -345,12 +329,8 @@ final class CallableReflection
                 }
 
                 if ($this->variadic && ! array_key_exists($this->variadic->getName(), $arguments)) {
-                    if (PHP_VERSION_ID >= 80000) {
-                        // Unpacking named parameters is only supported since PHP8.0
-                        $argumentsMap[$this->variadic->getName()][$i] = $argument;
-                    } else {
-                        $argumentsMap[$this->variadic->getName()][] = $argument;
-                    }
+                    // Unpacking named parameters is only supported since PHP8.0
+                    $argumentsMap[$this->variadic->getName()][$i] = $argument;
                     continue;
                 }
 

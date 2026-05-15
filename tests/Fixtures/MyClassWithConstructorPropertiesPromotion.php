@@ -1,6 +1,6 @@
 <?php
 
-namespace Technically\CallableReflection\Specs\Fixtures;
+namespace Technically\CallableReflection\Tests\Fixtures;
 
 final class MyClassWithConstructorPropertiesPromotion
 {
