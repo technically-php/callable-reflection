@@ -10,8 +10,7 @@ It also lets you to easily invoke a callable with `call()` and `apply()` support
 
 - Unified and simplified interface to reflect callable parameters 
 - No dependencies
-- Supports PHP 8.0, 8.1, 8.2, 8.3, 8.4 (supports union types, `mixed`, `false`, etc; see examples below)
-- PHP 7.1+ compatible &mdash; runs on as low as PHP 7.1
+- PHP 8.2+ (including support for union types, `mixed`, `false`, etc; see examples below)
 - Semver
 - Tests
 
